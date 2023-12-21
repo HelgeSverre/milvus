@@ -1,0 +1,75 @@
+{
+    "name": "helgesverre/milvus",
+    "description": "PHP Client for the Milvus Rest API",
+    "keywords": [
+        "laravel",
+        "vectorstore",
+        "vector",
+        "database",
+        "milvus",
+        "sdk",
+        "php"
+    ],
+    "homepage": "https://github.com/helgesverre/mistral-php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Helge Sverre",
+            "email": "helge.sverre@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "saloonphp/laravel-plugin": "^v3.0.0",
+        "spatie/laravel-data": "^3.10",
+        "spatie/laravel-package-tools": "^1.14.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.0",
+        "nunomaduro/collision": "^7.8",
+        "larastan/larastan": "^2.0.1",
+        "orchestra/testbench": "^8.8",
+        "pestphp/pest": "^2.20",
+        "pestphp/pest-plugin-arch": "^2.0",
+        "pestphp/pest-plugin-laravel": "^2.0",
+        "phpstan/extension-installer": "^1.1",
+        "phpstan/phpstan-deprecation-rules": "^1.0",
+        "phpstan/phpstan-phpunit": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "HelgeSverre\\Milvus\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "HelgeSverre\\Milvus\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MilvusServiceProvider"
+            ],
+            "aliases": {
+                "Milvus": "HelgeSverre\\Milvus\\Facades\\Milvus"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
