@@ -62,7 +62,9 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 
 ## Disclaimer
 
-"Milvus®" and the Milvus logo are [trademarks](http://tmsearch.uspto.gov/bin/showfield?f=doc&state=4801:9uy7k2.2.1) of
+"Milvus®" and the Milvus logo are registered trademarks of
 the [Linux Foundation](https://www.linuxfoundation.org/about) (LF Projects, LLC). This package is not affiliated with,
-endorsed by, or sponsored by the Linux Foundation. All trademarks and registered trademarks are the property of their
-respective owners.
+endorsed by, or sponsored by the Linux Foundation. It's developed independently and uses the "Milvus" name under fair
+use, solely for identification. All trademarks and registered trademarks, including "Milvus®", are the property of their
+respective owners. "Milvus®" is
+a [registered trademark](https://branddb.wipo.int/en/quicksearch/brand/EM500000018660437) of the Linux Foundation.
