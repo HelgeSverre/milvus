@@ -37,14 +37,44 @@ class VectorOperations extends BaseResource
         ));
     }
 
-    public function search(string $publicEndpoint): Response
-    {
-        return $this->connector->send(new SearchVector($publicEndpoint));
+    public function search(
+        string $collectionName,
+        array $vector,
+        ?string $filter = null,
+        ?int $limit = null,
+        ?int $offset = null,
+        ?array $outputFields = null,
+        ?array $params = null,
+        ?string $dbName = null
+    ): Response {
+        return $this->connector->send(new SearchVector(
+            collectionName: $collectionName,
+            vector: $vector,
+            filter: $filter,
+            limit: $limit,
+            offset: $offset,
+            outputFields: $outputFields,
+            params: $params,
+            dbName: $dbName,
+        ));
     }
 
-    public function query(string $publicEndpoint): Response
-    {
-        return $this->connector->send(new QueryVector($publicEndpoint));
+    public function query(
+        string $collectionName,
+        ?string $filter = null,
+        ?int $limit = null,
+        ?int $offset = null,
+        ?array $outputFields = null,
+        ?string $dbName = null
+    ): Response {
+        return $this->connector->send(new QueryVector(
+            collectionName: $collectionName,
+            filter: $filter,
+            limit: $limit,
+            offset: $offset,
+            outputFields: $outputFields,
+            dbName: $dbName,
+        ));
     }
 
     public function get(

@@ -5,7 +5,7 @@ namespace HelgeSverre\Milvus\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \HelgeSverre\Milvus\Mistral
+ * @see \HelgeSverre\Milvus\Milvus
  */
 class Milvus extends Facade
 {

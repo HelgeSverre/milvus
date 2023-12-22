@@ -18,33 +18,19 @@ class QueryVector extends Request implements HasBody
 
     protected Method $method = Method::POST;
 
-    protected string $collectionName;
-    protected string $filter;
-    protected ?int $limit = null;
-    protected ?int $offset = null;
-    protected ?array $outputFields = null;
-    protected ?string $dbName = null;
-
     public function resolveEndpoint(): string
     {
         return '/v1/vector/query';
     }
 
     public function __construct(
-        protected string $publicEndpoint, // The endpoint of your cluster.
-        string $collectionName,
-        string $filter,
-        ?int $limit = null,
-        ?int $offset = null,
-        ?array $outputFields = null,
-        ?string $dbName = null
+        protected string $collectionName,
+        protected ?string $filter = null,
+        protected ?int $limit = null,
+        protected ?int $offset = null,
+        protected ?array $outputFields = null,
+        protected ?string $dbName = null
     ) {
-        $this->collectionName = $collectionName;
-        $this->filter = $filter;
-        $this->limit = $limit;
-        $this->offset = $offset;
-        $this->outputFields = $outputFields;
-        $this->dbName = $dbName;
     }
 
     protected function defaultBody(): array

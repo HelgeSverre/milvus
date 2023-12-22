@@ -15,7 +15,7 @@ class Milvus extends Connector
 {
     public function __construct(
         #[SensitiveParameter]
-        public readonly string $token,
+        protected readonly string $token,
         protected string $host,
         protected string $port
     ) {

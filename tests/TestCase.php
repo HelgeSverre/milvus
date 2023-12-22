@@ -1,9 +1,9 @@
 <?php
 
-namespace HelgeSverre\Mistral\Tests;
+namespace HelgeSverre\Milvus\Tests;
 
 use Dotenv\Dotenv;
-use HelgeSverre\Mistral\MistralServiceProvider;
+use HelgeSverre\Milvus\MilvusServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Saloon\Laravel\SaloonServiceProvider;
 use Spatie\LaravelData\LaravelDataServiceProvider;
@@ -14,7 +14,7 @@ class TestCase extends Orchestra
     {
         return [
             SaloonServiceProvider::class,
-            MistralServiceProvider::class,
+            MilvusServiceProvider::class,
             LaravelDataServiceProvider::class,
         ];
     }
@@ -26,6 +26,6 @@ class TestCase extends Orchestra
             (Dotenv::createImmutable(dirname(__DIR__), '.env'))->load();
         }
 
-        config()->set('mistral.api_key', env('MISTRAL_API_KEY'));
+        config()->set('milvus.token', 'root:Milvus');
     }
 }

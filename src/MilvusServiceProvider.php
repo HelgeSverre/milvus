@@ -19,8 +19,6 @@ class MilvusServiceProvider extends PackageServiceProvider
                 sprintf('%s:%s', config('milvus.username'), config('milvus.password'))
             );
 
-            // TODO: Trow exception if none are defined
-
             return new Milvus(
                 token: $token,
                 host: config('milvus.host'),
