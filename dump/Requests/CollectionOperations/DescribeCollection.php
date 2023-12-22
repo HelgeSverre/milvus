@@ -20,12 +20,10 @@ class DescribeCollection extends Request
     }
 
     /**
-     * @param  string  $collectionName The name of the collection to describe.
-     * @param  string  $dbName The name of the database.
+     * @param  string  $collectionName The name of the collection to describe. 
      */
     public function __construct(
-        protected string $collectionName,
-        protected string $dbName,
+        protected string $collectionName
     ) {
     }
 
