@@ -26,12 +26,15 @@ You can publish the config file with:
 php artisan vendor:publish --tag="milvus-config"
 ```
 
-This is the contents of the published config file:
+This is the contents of the published `config/milvus.php` file:
 
 ```php
 return [
-    'api_key' => env('MILVUS_API_KEY'),
-    'base_url' => env('MILVUS_BASE_URL'),
+    'token' => env('MILVUS_TOKEN'),
+    'username' => env('MILVUS_USERNAME'),
+    'password' => env('MILVUS_PASSWORD'),
+    'host' => env('MILVUS_HOST', 'localhost'),
+    'port' => env('MILVUS_PORT', '19530'),
 ];
 ```
 
