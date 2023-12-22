@@ -25,7 +25,6 @@ class DescribeCollection extends Request
      * @param  string  $dbName The name of the database.
      */
     public function __construct(
-        protected string $clusterEndpoint,
         protected string $collectionName,
         protected string $dbName,
     ) {
