@@ -3,31 +3,23 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Mistral API Key
+    | Milvus SDK Configuration
     |--------------------------------------------------------------------------
     |
-    | Your Mistral API key is used to authenticate requests made from your
-    | application to the Mistral.ai services. You can generate and manage
-    | your API keys in the Mistral.ai dashboard.
+    | This configuration file is for interfacing with the Milvus REST API using
+    | the Milvus SDK. Authentication can be achieved either through an API token
+    | or via a combination of username and password. The API token is the preferred
+    | method, and if provided, username and password are not required.
+    |
+    | 'host' and 'port' settings determine the connection details for the
+    | Milvus REST API, with default values set to 'localhost' and '19530',
     |
     */
 
-    'auth_token' => env('MISTRAL_API_KEY'),
-    'username' => env('MISTRAL_USERNAME'),
-    'password' => env('MISTRAL_PASSWORD'),
-    'host' => env('MILVUS_HOST', "localhost"),
-    'port' => env('MILVUS_PORT', "19530"),
+    'token' => env('MILVUS_TOKEN'),
+    'username' => env('MILVUS_USERNAME'),
+    'password' => env('MILVUS_PASSWORD'),
+    'host' => env('MILVUS_HOST', 'localhost'),
+    'port' => env('MILVUS_PORT', '19530'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Mistral Base URL
-    |--------------------------------------------------------------------------
-    |
-    | This URL is the base endpoint for all Mistral.ai API requests. While it's
-    | set to Mistral's default API server, you can change it for self-hosted
-    | models or different test environments (if applicable, in the future).
-    |
-    */
-
-    'base_url' => env('MISTRAL_BASE_URL'),
 ];

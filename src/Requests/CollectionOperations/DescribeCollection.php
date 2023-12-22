@@ -20,7 +20,7 @@ class DescribeCollection extends Request
     }
 
     /**
-     * @param  string  $collectionName The name of the collection to describe. 
+     * @param  string  $collectionName The name of the collection to describe.
      */
     public function __construct(
         protected string $collectionName

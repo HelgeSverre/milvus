@@ -15,8 +15,16 @@ class MilvusServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->app->bind(Milvus::class, function () {
+            $token = config('milvus.token') ?: base64_encode(
+                sprintf('%s:%s', config('milvus.username'), config('milvus.password'))
+            );
+
+            // TODO: Trow exception if none are defined
+
             return new Milvus(
-                apiKey: config('milvus.api_key'),
+                token: $token,
+                host: config('milvus.host'),
+                port: config('milvus.port'),
             );
         });
     }

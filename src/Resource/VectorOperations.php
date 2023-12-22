@@ -8,10 +8,10 @@ use HelgeSverre\Milvus\Requests\VectorOperations\InsertVector;
 use HelgeSverre\Milvus\Requests\VectorOperations\QueryVector;
 use HelgeSverre\Milvus\Requests\VectorOperations\SearchVector;
 use HelgeSverre\Milvus\Requests\VectorOperations\UpsertVector;
-use HelgeSverre\Milvus\Resource;
+use Saloon\Http\BaseResource;
 use Saloon\Http\Response;
 
-class VectorOperations extends Resource
+class VectorOperations extends BaseResource
 {
     public function delete(string $publicEndpoint): Response
     {

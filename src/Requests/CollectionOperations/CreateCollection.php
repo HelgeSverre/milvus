@@ -19,7 +19,7 @@ class CreateCollection extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        protected ?string $dbName = null,
+        protected ?string $dbName,
         protected string $collectionName,
         protected int $dimension,
         protected string $metricType = 'L2',
