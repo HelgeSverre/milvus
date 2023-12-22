@@ -24,13 +24,13 @@ class CreateCollection extends Request implements HasBody
     }
 
     public function __construct(
-        protected string $dbName,
         protected string $collectionName,
         protected int $dimension,
-        protected string $metricType,
-        protected string $primaryField,
-        protected string $vectorField,
-        protected ?string $description
+        protected string $metricType = 'L2',
+        protected string $primaryField = 'id',
+        protected string $vectorField = 'vector',
+        protected ?string $description = null,
+        protected ?string $dbName = null
     ) {
     }
 
