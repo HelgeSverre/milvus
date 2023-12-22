@@ -18,14 +18,19 @@ class CreateCollection extends Request implements HasBody
 
     protected Method $method = Method::POST;
 
+    public function resolveEndpoint(): string
+    {
+        return '/v1/vector/collections/create';
+    }
+
     public function __construct(
-        protected ?string $dbName,
         protected string $collectionName,
         protected int $dimension,
         protected string $metricType = 'L2',
         protected string $primaryField = 'id',
         protected string $vectorField = 'vector',
-        protected ?string $description = null
+        protected ?string $description = null,
+        protected ?string $dbName = null
     ) {
     }
 
@@ -41,6 +46,9 @@ class CreateCollection extends Request implements HasBody
             'description' => $this->description,
         ]);
     }
+}
+
+++ src/Requests/CollectionOperations/DropCollection.php
 
     public function resolveEndpoint(): string
     {
