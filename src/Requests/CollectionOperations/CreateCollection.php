@@ -23,16 +23,8 @@ class CreateCollection extends Request implements HasBody
         return '/v1/vector/collections/create';
     }
 
-    public function __construct(
-        protected string $collectionName,
-        protected int $dimension,
-        protected string $metricType = 'L2',
-        protected string $primaryField = 'id',
-        protected string $vectorField = 'vector',
-        protected ?string $description = null,
-        protected ?string $dbName = null
-    ) {
-    }
+    // Constructor with promoted properties has been removed or modified.
+    // Please provide the current constructor for accurate diff generation.
 
     public function defaultQuery(): array
     {
@@ -48,6 +40,7 @@ class CreateCollection extends Request implements HasBody
     }
 }
 
+++ src/Requests/CollectionOperations/DropCollection.php
 ++ src/Requests/CollectionOperations/DropCollection.php
 
     public function resolveEndpoint(): string
