@@ -40,6 +40,8 @@ return [
 
 ## Usage
 
+### With Laravel
+
 For Laravel users, you can use the `Milvus` facade to interact with the Milvus API:
 
 ```php
@@ -60,19 +62,22 @@ $getVectorResponse = Milvus::vector()->get('vector-id', 'collection-name');
 $upsertVectorResponse = Milvus::vector()->upsert('collection-name', ['vector-data']);
 ```
 
+### Without Laravel
+
+If you are not using laravel, you will have to create a new instance of the Milvus class and provide a token or
+user/pass, the host and the port.
+
 ```php
 use HelgeSverre\Milvus\Milvus;
 use HelgeSverre\Milvus\Resource\CollectionOperations;
 use HelgeSverre\Milvus\Resource\VectorOperations;
 
 $milvus = new Milvus(
-    token: config('milvus.token'),
-    host: config('milvus.host'),
-    port: config('milvus.port')
+    token: "your-token",
+    host: "localhost",
+    port: "19530"
 );
 
-// Models 
-$list = $milvus->models()->list();
 
 // Collection Operations
 $collections = $milvus->collections();
