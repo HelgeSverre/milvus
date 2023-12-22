@@ -18,7 +18,14 @@ class CreateCollection extends Request implements HasBody
 
     protected Method $method = Method::POST;
 
-    public function __construct(protected ?string $dbName = null,
+    public function __construct(
+        protected ?string $dbName = null,
+        protected string $collectionName,
+        protected int $dimension,
+        protected string $metricType = 'L2',
+        protected string $primaryField = 'id',
+        protected string $vectorField = 'vector',
+        protected ?string $description = null
     ) {
     }
 
@@ -26,6 +33,12 @@ class CreateCollection extends Request implements HasBody
     {
         return array_filter([
             'dbName' => $this->dbName,
+            'collectionName' => $this->collectionName,
+            'dimension' => $this->dimension,
+            'metricType' => $this->metricType,
+            'primaryField' => $this->primaryField,
+            'vectorField' => $this->vectorField,
+            'description' => $this->description,
         ]);
     }
 

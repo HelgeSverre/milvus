@@ -12,8 +12,14 @@ use Saloon\Http\Response;
 class CollectionOperations extends Resource
 {
     /**
-     * @param  string  $clusterEndpoint The endpoint of your cluster.
-     * @param  string  $dbName The name of the database
+     * @param string $clusterEndpoint The endpoint of your cluster.
+     * @param string $dbName The name of the database.
+     * @param string $collectionName The name of the collection to create.
+     * @param int $dimension The number of dimensions for the vector field of the collection.
+     * @param string $metricType The distance metric used for the collection.
+     * @param string $primaryField The primary key field.
+     * @param string $vectorField The vector field.
+     * @param string|null $description The description of the collection.
      */
     public function list(string $clusterEndpoint, string $dbName): Response
     {
@@ -23,9 +29,26 @@ class CollectionOperations extends Resource
     /**
      * @param  string  $clusterEndpoint The endpoint of your cluster.
      */
-    public function create(string $clusterEndpoint): Response
+    public function create(
+        string $clusterEndpoint,
+        string $dbName,
+        string $collectionName,
+        int $dimension,
+        string $metricType = 'L2',
+        string $primaryField = 'id',
+        string $vectorField = 'vector',
+        ?string $description = null
+    ): Response
     {
-        return $this->connector->send(new CreateCollection($clusterEndpoint));
+        return $this->connector->send(new CreateCollection(
+            $dbName,
+            $collectionName,
+            $dimension,
+            $metricType,
+            $primaryField,
+            $vectorField,
+            $description
+        ));
     }
 
     /**
