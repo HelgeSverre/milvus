@@ -20,13 +20,13 @@ class DescribeCollection extends Request
     }
 
     /**
-     * @param  string  $collectionName The name of the collection to describe.
+     * @param string $collectionName The name of the collection to describe.
      */
     public function __construct(
-        protected string $clusterEndpoint,
-        protected string $collectionName,
+        protected string  $collectionName,
         protected ?string $dbName = null
-    ) {
+    )
+    {
     }
 
     public function defaultQuery(): array
@@ -34,9 +34,6 @@ class DescribeCollection extends Request
         return [
             'collectionName' => $this->collectionName,
             'dbName' => $this->dbName,
-            'CLUSTER_ENDPOINT' => $this->clusterEndpoint
         ];
     }
 }
-
-++ src/Requests/CollectionOperations/ListCollections.php
