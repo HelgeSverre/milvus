@@ -24,17 +24,17 @@ class CreateCollection extends Request implements HasBody
     }
 
     public function __construct(
-        protected string $dbName,
         protected string $collectionName,
         protected int $dimension,
-        protected string $metricType = 'L2',
-        protected string $primaryField = 'id',
-        protected string $vectorField = 'vector',
+        protected ?string $dbName = null,
+        protected ?string $metricType = null,
+        protected ?string $primaryField = null,
+        protected ?string $vectorField = null,
         protected ?string $description = null,
     ) {
     }
 
-    public function defaultQuery(): array
+    public function debugRequest(): array
     {
         return array_filter([
             'dbName' => $this->dbName,

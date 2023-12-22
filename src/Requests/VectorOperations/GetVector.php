@@ -24,7 +24,20 @@ class GetVector extends Request implements HasBody
     }
 
     public function __construct(
-        protected string $publicEndpoint,
+        protected int|string|array $id,
+        protected string $collectionName,
+        protected ?array $outputFields = null,
+        protected ?string $dbName = null,
     ) {
+    }
+
+    protected function defaultBody(): array
+    {
+        return array_filter([
+            'id' => $this->id,
+            'collectionName' => $this->collectionName,
+            'outputFields' => $this->outputFields,
+            'dbName' => $this->dbName,
+        ]);
     }
 }

@@ -24,7 +24,18 @@ class DeleteVector extends Request implements HasBody
     }
 
     public function __construct(
-        protected string $publicEndpoint,
+        protected int|string|array $id,
+        protected string $collectionName,
+        protected ?string $dbName = null,
     ) {
+    }
+
+    protected function defaultBody(): array
+    {
+        return array_filter([
+            'id' => $this->id,
+            'collectionName' => $this->collectionName,
+            'dbName' => $this->dbName,
+        ]);
     }
 }

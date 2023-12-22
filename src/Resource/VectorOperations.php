@@ -13,9 +13,16 @@ use Saloon\Http\Response;
 
 class VectorOperations extends BaseResource
 {
-    public function delete(string $publicEndpoint): Response
-    {
-        return $this->connector->send(new DeleteVector($publicEndpoint));
+    public function delete(
+        int|string|array $id,
+        string $collectionName,
+        ?string $dbName = null,
+    ): Response {
+        return $this->connector->send(new DeleteVector(
+            id: $id,
+            collectionName: $collectionName,
+            dbName: $dbName,
+        ));
     }
 
     public function insert(string $publicEndpoint): Response
@@ -33,9 +40,18 @@ class VectorOperations extends BaseResource
         return $this->connector->send(new QueryVector($publicEndpoint));
     }
 
-    public function get(string $publicEndpoint): Response
-    {
-        return $this->connector->send(new GetVector($publicEndpoint));
+    public function get(
+        int|string|array $id,
+        string $collectionName,
+        ?array $outputFields = null,
+        ?string $dbName = null,
+    ): Response {
+        return $this->connector->send(new GetVector(
+            id: $id,
+            collectionName: $collectionName,
+            outputFields: $outputFields,
+            dbName: $dbName,
+        ));
     }
 
     public function upsert(string $publicEndpoint): Response

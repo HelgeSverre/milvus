@@ -30,9 +30,9 @@ class DescribeCollection extends Request
 
     public function defaultQuery(): array
     {
-        return [
+        return array_filter([
             'collectionName' => $this->collectionName,
             'dbName' => $this->dbName,
-        ];
+        ]);
     }
 }

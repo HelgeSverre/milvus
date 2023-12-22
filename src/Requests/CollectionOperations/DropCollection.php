@@ -24,11 +24,17 @@ class DropCollection extends Request implements HasBody
         return '/v1/vector/collections/drop';
     }
 
-    /**
-     * @param  string  $clusterEndpoint The endpoint of your cluster.
-     */
     public function __construct(
-        protected string $clusterEndpoint,
+        protected string $collectionName,
+        protected ?string $dbName = null
     ) {
+    }
+
+    public function defaultBody(): array
+    {
+        return array_filter([
+            'collectionName' => $this->collectionName,
+            'dbName' => $this->dbName,
+        ]);
     }
 }

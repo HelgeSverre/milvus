@@ -18,19 +18,4 @@ class ListCollections extends Request
     {
         return '/v1/vector/collections';
     }
-
-    /**
-     * @param  string  $clusterEndpoint The endpoint of your cluster.
-     * @param  string  $dbName The name of the database
-     */
-    public function __construct(
-        protected string $clusterEndpoint,
-        protected string $dbName,
-    ) {
-    }
-
-    public function defaultQuery(): array
-    {
-        return ['dbName' => $this->dbName];
-    }
 }
