@@ -40,6 +40,26 @@ return [
 
 ## Usage
 
+For Laravel users, you can use the `Milvus` facade to interact with the Milvus API:
+
+```php
+use HelgeSverre\Milvus\Facades\Milvus;
+
+// Collection Operations using the facade
+$listCollectionsResponse = Milvus::collections()->list('your-cluster-endpoint', 'your-db-name');
+$createCollectionResponse = Milvus::collections()->create('collection-name', 128);
+$describeCollectionResponse = Milvus::collections()->describe('collection-name');
+$dropCollectionResponse = Milvus::collections()->drop('collection-name');
+
+// Vector Operations using the facade
+$insertVectorResponse = Milvus::vector()->insert('collection-name', ['vector-data']);
+$searchVectorResponse = Milvus::vector()->search('collection-name', ['vector-query']);
+$deleteVectorResponse = Milvus::vector()->delete('vector-id', 'collection-name');
+$queryVectorResponse = Milvus::vector()->query('collection-name', 'filter-expression');
+$getVectorResponse = Milvus::vector()->get('vector-id', 'collection-name');
+$upsertVectorResponse = Milvus::vector()->upsert('collection-name', ['vector-data']);
+```
+
 ```php
 use HelgeSverre\Milvus\Milvus;
 use HelgeSverre\Milvus\Resource\CollectionOperations;
