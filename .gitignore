@@ -11,3 +11,6 @@ vendor
 node_modules
 .env
 .aider*
+
+# Docker volumns, for testing the package against real service.
+volumes/
