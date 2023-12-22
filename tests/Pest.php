@@ -1,5 +1,5 @@
 <?php
 
-use HelgeSverre\Mistral\Tests\TestCase;
+use HelgeSverre\Milvus\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);
