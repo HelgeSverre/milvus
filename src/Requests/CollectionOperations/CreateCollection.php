@@ -28,15 +28,8 @@ class CreateCollection extends Request implements HasBody
 
     public function defaultQuery(): array
     {
-        return array_filter([
-            'dbName' => $this->dbName,
-            'collectionName' => $this->collectionName,
-            'dimension' => $this->dimension,
-            'metricType' => $this->metricType,
-            'primaryField' => $this->primaryField,
-            'vectorField' => $this->vectorField,
-            'description' => $this->description,
-        ]);
+        // The content of the defaultQuery method has been modified or removed.
+        // Please provide the current content of the defaultQuery method for accurate diff generation.
     }
 }
 
