@@ -20,7 +20,6 @@ class DescribeCollection extends Request
     }
 
     /**
-     * @param  string  $clusterEndpoint The endpoint of your cluster.
      * @param  string  $collectionName The name of the collection to describe.
      * @param  string  $dbName The name of the database.
      */
