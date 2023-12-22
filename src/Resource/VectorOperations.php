@@ -25,9 +25,16 @@ class VectorOperations extends BaseResource
         ));
     }
 
-    public function insert(string $publicEndpoint): Response
-    {
-        return $this->connector->send(new InsertVector($publicEndpoint));
+    public function insert(
+        string $collectionName,
+        array $data,
+        ?string $dbName = null,
+    ): Response {
+        return $this->connector->send(new InsertVector(
+            collectionName: $collectionName,
+            data: $data,
+            dbName: $dbName,
+        ));
     }
 
     public function search(string $publicEndpoint): Response
@@ -54,8 +61,15 @@ class VectorOperations extends BaseResource
         ));
     }
 
-    public function upsert(string $publicEndpoint): Response
-    {
-        return $this->connector->send(new UpsertVector($publicEndpoint));
+    public function upsert(
+        string $collectionName,
+        array $data,
+        ?string $dbName = null,
+    ): Response {
+        return $this->connector->send(new UpsertVector(
+            collectionName: $collectionName,
+            data: $data,
+            dbName: $dbName,
+        ));
     }
 }

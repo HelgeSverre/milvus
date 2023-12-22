@@ -24,7 +24,18 @@ class InsertVector extends Request implements HasBody
     }
 
     public function __construct(
-        protected string $publicEndpoint,
+        protected string $collectionName,
+        protected array $data,
+        protected ?string $dbName = null,
     ) {
+    }
+
+    protected function defaultBody(): array
+    {
+        return array_filter([
+            'data' => $this->data,
+            'collectionName' => $this->collectionName,
+            'dbName' => $this->dbName,
+        ]);
     }
 }
