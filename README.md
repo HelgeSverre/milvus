@@ -42,13 +42,33 @@ return [
 
 ```php
 use HelgeSverre\Milvus\Milvus;
+use HelgeSverre\Milvus\Resource\CollectionOperations;
+use HelgeSverre\Milvus\Resource\VectorOperations;
 
-$milvus = new Milvus(apiKey: config('milvus.api_key'));
+$milvus = new Milvus(
+    token: config('milvus.token'),
+    host: config('milvus.host'),
+    port: config('milvus.port')
+);
 
 // Models 
 $list = $milvus->models()->list();
 
-// todo: write docs
+// Collection Operations
+$collections = $milvus->collections();
+$listCollectionsResponse = $collections->list('your-cluster-endpoint', 'your-db-name');
+$createCollectionResponse = $collections->create('collection-name', 128);
+$describeCollectionResponse = $collections->describe('collection-name');
+$dropCollectionResponse = $collections->drop('collection-name');
+
+// Vector Operations
+$vectors = $milvus->vector();
+$insertVectorResponse = $vectors->insert('collection-name', ['vector-data']);
+$searchVectorResponse = $vectors->search('collection-name', ['vector-query']);
+$deleteVectorResponse = $vectors->delete('vector-id', 'collection-name');
+$queryVectorResponse = $vectors->query('collection-name', 'filter-expression');
+$getVectorResponse = $vectors->get('vector-id', 'collection-name');
+$upsertVectorResponse = $vectors->upsert('collection-name', ['vector-data']);
 ```
 
 ## Testing
