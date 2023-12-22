@@ -18,9 +18,7 @@ class CreateCollection extends Request implements HasBody
 
     protected Method $method = Method::POST;
 
-    public function __construct(
-        protected string $clusterEndpoint,
-        protected ?string $dbName = null,
+    public function __construct(protected ?string $dbName = null,
     ) {
     }
 
@@ -36,8 +34,3 @@ class CreateCollection extends Request implements HasBody
         return '/v1/vector/collections/create';
     }
 }
-
-    /**
-     * @param  string  $clusterEndpoint The endpoint of your cluster.
-     */
-++ dump/Requests/CollectionOperations/DescribeCollection.php
