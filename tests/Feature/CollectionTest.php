@@ -1,22 +1,23 @@
 <?php
 
 use HelgeSverre\Milvus\Milvus;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 beforeEach(function () {
     // Restart the Docker Compose system before each test
-    $this->restartDockerServices();
+    restartDockerServices();
     $this->milvus = new Milvus('', 'localhost', '19530');
 });
 
 /**
  * Restart Docker services using docker-compose.
  */
-private function restartDockerServices()
+function restartDockerServices()
 {
+    $path = realpath(__DIR__ . '/../../');
     $process = new Process(['docker-compose', 'down', '&&', 'docker-compose', 'up', '-d']);
-    $process->setWorkingDirectory(__DIR__.'/../../'); // Adjust the path to the docker-compose.yml file
+    $process->setWorkingDirectory($path); // Adjust the path to the docker-compose.yml file
     $process->run();
 
     // Executes after the command finishes
@@ -32,7 +33,7 @@ it('confirms that listing collections in the db is empty', function () {
 
     $response = $this->milvus->collections()->list();
 
-//    dd($response->json());
+    //    dd($response->json());
 
 });
 
@@ -45,10 +46,8 @@ it('creates a collection and confirms the list method returns 1 item', function 
 
     expect($response->json('code'))->toEqual(200);
 
-
-//    $response = $this->milvus->collections()->list();
-//    expect($response->json('data'))->toHaveCount(1);
-
+    //    $response = $this->milvus->collections()->list();
+    //    expect($response->json('data'))->toHaveCount(1);
 
     $describe = $this->milvus->collections()->describe(collectionName: 'test_collection');
     expect($describe->json('code'))->toEqual(200);
@@ -69,11 +68,10 @@ it('can insert stuff into collections', function () {
         dimension: 128,
     );
 
-
     $response = $this->milvus->vector()->insert(
         collectionName: 'add_stuff_into_collections',
         data: [
-            "vector" => array_fill(0, 128, 0.1),
+            'vector' => array_fill(0, 128, 0.1),
         ],
     );
 
@@ -81,10 +79,8 @@ it('can insert stuff into collections', function () {
 
     $response = $this->milvus->vector()->query(
         collectionName: 'add_stuff_into_collections',
-        filter: "id in [446564440140681987]",
+        filter: 'id in [446564440140681987]',
     );
-
-
 
     dd($response->json());
 
