@@ -34,7 +34,7 @@ class CreateCollection extends Request implements HasBody
     ) {
     }
 
-    public function debugRequest(): array
+    public function defaultBody(): array
     {
         return array_filter([
             'dbName' => $this->dbName,

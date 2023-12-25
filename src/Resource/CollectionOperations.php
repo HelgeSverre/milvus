@@ -11,9 +11,9 @@ use Saloon\Http\Response;
 
 class CollectionOperations extends BaseResource
 {
-    public function list(string $clusterEndpoint, string $dbName): Response
+    public function list(?string $dbName = null): Response
     {
-        return $this->connector->send(new ListCollections($clusterEndpoint, $dbName));
+        return $this->connector->send(new ListCollections($dbName));
     }
 
     /**

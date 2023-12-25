@@ -18,4 +18,16 @@ class ListCollections extends Request
     {
         return '/v1/vector/collections';
     }
+
+    public function __construct(
+        protected ?string $dbName = null,
+    ) {
+    }
+
+    protected function defaultQuery(): array
+    {
+        return array_filter([
+            'dbName' => $this->dbName,
+        ]);
+    }
 }

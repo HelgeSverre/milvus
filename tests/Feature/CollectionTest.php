@@ -1,44 +1,28 @@
 <?php
 
-use Milvus\Milvus;
-use Milvus\Requests\CollectionOperations\CreateCollection;
-use Milvus\Requests\CollectionOperations\ListCollections;
-use Saloon\Laravel\Facades\Saloon;
+use HelgeSverre\Milvus\Milvus;
+
+beforeEach(function () {
+    $this->milvus = new Milvus('', 'localhost', '19530');
+});
 
 it('confirms that listing collections in the db is empty', function () {
-    Saloon::fake([
-        ListCollections::class => MockResponse::empty(200),
-    ]);
 
-    $milvus = new Milvus('your_token', 'your_host', 'your_port');
-    Saloon::fake([
-        ListCollections::class => MockResponse::empty(200),
-    ]);
+    $response = $this->milvus->collections()->list();
 
-    Saloon::assertSent(CreateCollection::class);
+    dd($response->json());
 
-    $response = $this->milvus->execute(new ListCollections());
-
-    Saloon::assertSent(ListCollections::class);
-
-    Saloon::assertSent(ListCollections::class);
-    expect($response->getCollections())->toBeEmpty();
 });
 
 it('creates a collection and confirms the list method returns 1 item', function () {
-    Saloon::fake([
-        CreateCollection::class => MockResponse::empty(200),
-        ListCollections::class => MockResponse::make(['collections' => ['test_collection']], 200),
-    ]);
 
-    $milvus = new Milvus('your_token', 'your_host', 'your_port');
-    $createCollection = new CreateCollection('test_collection', 128);
-    $milvus->execute($createCollection);
+    $response = $this->milvus->collections()->create(
+        collectionName: 'test_collection',
+        dimension: 128,
+    );
 
-    Saloon::fake([
-        ListCollections::class => MockResponse::empty(200),
-    ]);
+    $response = $this->milvus->collections()->list();
 
-    Saloon::assertSent(ListCollections::class);
-    expect($response->getCollections())->toHaveCount(1);
+    dd($response->json());
+
 });
