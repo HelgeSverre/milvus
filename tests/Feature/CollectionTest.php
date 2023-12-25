@@ -16,7 +16,22 @@ beforeEach(function () {
 function restartDockerServices()
 {
     $path = realpath(__DIR__ . '/../../');
-    $process = new Process(['docker-compose', 'down', '&&', 'docker-compose', 'up', '-d']);
+    $processDown = new Process(['docker-compose', 'down']);
+    $processDown->setWorkingDirectory($path);
+    $processDown->run();
+
+    if (!$processDown->isSuccessful()) {
+        throw new ProcessFailedException($processDown);
+    }
+
+    $processUp = new Process(['docker-compose', 'up', '-d']);
+    $processUp->setWorkingDirectory($path);
+    $processUp->run();
+
+    if (!$processUp->isSuccessful()) {
+        throw new ProcessFailedException($processUp);
+    }
+
     $process->setWorkingDirectory($path); // Adjust the path to the docker-compose.yml file
     $process->run();
 
