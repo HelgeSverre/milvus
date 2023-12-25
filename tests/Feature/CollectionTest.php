@@ -1,10 +1,32 @@
 <?php
 
 use HelgeSverre\Milvus\Milvus;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 beforeEach(function () {
+    // Restart the Docker Compose system before each test
+    $this->restartDockerServices();
     $this->milvus = new Milvus('', 'localhost', '19530');
 });
+
+/**
+ * Restart Docker services using docker-compose.
+ */
+private function restartDockerServices()
+{
+    $process = new Process(['docker-compose', 'down', '&&', 'docker-compose', 'up', '-d']);
+    $process->setWorkingDirectory(__DIR__.'/../../'); // Adjust the path to the docker-compose.yml file
+    $process->run();
+
+    // Executes after the command finishes
+    if (!$process->isSuccessful()) {
+        throw new ProcessFailedException($process);
+    }
+
+    // Wait for services to be healthy
+    sleep(30);
+}
 
 it('confirms that listing collections in the db is empty', function () {
 
