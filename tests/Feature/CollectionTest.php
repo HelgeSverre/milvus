@@ -6,7 +6,7 @@ use Symfony\Component\Process\Process;
 
 beforeEach(function () {
     // Restart the Docker Compose system before each test
-    restartDockerServices();
+//    restartDockerServices();
     $this->milvus = new Milvus('', 'localhost', '19530');
 });
 
@@ -15,40 +15,36 @@ beforeEach(function () {
  */
 function restartDockerServices()
 {
-    $path = realpath(__DIR__ . '/../../');
+    $path = realpath(__DIR__.'/../../');
+
+    dump('Shutting down Docker services...');
     $processDown = new Process(['docker-compose', 'down']);
     $processDown->setWorkingDirectory($path);
     $processDown->run();
 
-    if (!$processDown->isSuccessful()) {
+    if (! $processDown->isSuccessful()) {
         throw new ProcessFailedException($processDown);
     }
 
+    dump('Starting Docker services...');
     $processUp = new Process(['docker-compose', 'up', '-d']);
     $processUp->setWorkingDirectory($path);
     $processUp->run();
 
-    if (!$processUp->isSuccessful()) {
+    if (! $processUp->isSuccessful()) {
         throw new ProcessFailedException($processUp);
     }
 
-    $process->setWorkingDirectory($path); // Adjust the path to the docker-compose.yml file
-    $process->run();
+    dump('Docker services restarted.');
 
-    // Executes after the command finishes
-    if (!$process->isSuccessful()) {
-        throw new ProcessFailedException($process);
-    }
-
-    // Wait for services to be healthy
-    sleep(30);
+    sleep(3);
 }
 
 it('confirms that listing collections in the db is empty', function () {
 
     $response = $this->milvus->collections()->list();
 
-    //    dd($response->json());
+        dd($response->json());
 
 });
 
