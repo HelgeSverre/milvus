@@ -16,9 +16,6 @@ class CollectionOperations extends BaseResource
         return $this->connector->send(new ListCollections($dbName));
     }
 
-    /**
-     * @param  string  $clusterEndpoint The endpoint of your cluster.
-     */
     public function create(
         string $collectionName,
         int $dimension,

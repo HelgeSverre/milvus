@@ -9,9 +9,22 @@
 blazing fast. It supports adding,
 deleting, updating, and near real-time search of vectors on a trillion-byte scale.
 
-This package provides an API Client based on the OpenAPI spec provided for
-the [REST API](https://raw.githubusercontent.com/milvus-io/web-content/master/API_Reference/milvus-restful/v2.3.x/Restful%20API.openapi.json)
-and the information found in this [documentation](https://milvus.io/api-reference/restful/v2.3.x/About.md).
+This package is an API Client for the Milvus v2.3.3 Restful API, and is built on the [Saloon](https://docs.saloon.dev/)
+package.
+
+Documentation about the Restful API is available on
+the [Milvus website](https://milvus.io/api-reference/restful/v2.3.x/About.md), and an OpenAPI spec is
+available [here](https://raw.githubusercontent.com/milvus-io/web-content/master/API_Reference/milvus-restful/v2.3.x/Restful%20API.openapi.json).
+
+## Versions
+
+| Milvus Version | PHP Client Version |
+|----------------|--------------------|
+| v2.3.x         | v0.0.x             |
+| v2.2.x         | Not supported (*)  |
+
+(*) But is mostly compatible, the only difference (that I can see) between them is the new Vector Upsert endpoint, and
+new parameters (`params.range_filter` and `params.radius`)  in the Vector Search endpoint.
 
 ## Installation
 
@@ -228,6 +241,29 @@ foreach ($searchResponse as $result) {
     echo "Tags: " . implode(', ', $result['tags']) . "\n\n";
 }
 ```
+
+## Running Milvus in Docker
+
+To quickly get started with Milvus, you can run it in Docker, by using the following command
+
+```bash
+# Download the docker-compose.yml file
+wget https://github.com/milvus-io/milvus/releases/download/v2.3.3/milvus-standalone-docker-compose.yml -O docker-compose.yml
+
+# Start Milvus
+docker compose up -d
+```
+
+A healthcheck endpoint will now be available on `http://localhost:9091/healthz`, and the Milvus API will be available
+on `http://localhost:19530`.
+
+To stop Milvus, run `docker compose down`, to wipe all the data, run `docker compose down -v`.
+
+For more
+details [Installing Milvus Standalone with Docker Compose](https://milvus.io/docs/install_standalone-docker.md)
+
+For production workloads, consider checking out [Zilliz.com](https://zilliz.com/), which are the developers behind
+Milvus and provides a hosted version of Milvus in the Cloud ☁️.
 
 ## Testing
 
