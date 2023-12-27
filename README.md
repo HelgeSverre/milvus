@@ -10,7 +10,8 @@ blazing fast. It supports adding,
 deleting, updating, and near real-time search of vectors on a trillion-byte scale.
 
 This package provides an API Client based on the OpenAPI spec provided for
-the [REST API](https://raw.githubusercontent.com/milvus-io/web-content/master/API_Reference/milvus-restful/v2.3.x/Restful%20API.openapi.json).
+the [REST API](https://raw.githubusercontent.com/milvus-io/web-content/master/API_Reference/milvus-restful/v2.3.x/Restful%20API.openapi.json)
+and the information found in this [documentation](https://milvus.io/api-reference/restful/v2.3.x/About.md).
 
 ## Installation
 
