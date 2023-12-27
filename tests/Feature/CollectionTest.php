@@ -8,6 +8,8 @@ beforeEach(function () {
 
 it('creates a collection and confirms if it exists in the list', function () {
 
+    $this->milvus->collections()->drop('test_collection');
+
     $response = $this->milvus->collections()->create(
         collectionName: 'test_collection',
         dimension: 128,
