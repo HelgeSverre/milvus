@@ -1,73 +1,31 @@
 <?php
 
 use HelgeSverre\Milvus\Milvus;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 beforeEach(function () {
-    // Restart the Docker Compose system before each test
-    //    restartDockerServices();
     $this->milvus = new Milvus('', 'localhost', '19530');
 });
 
-/**
- * Restart Docker services using docker-compose.
- */
-function restartDockerServices()
-{
-    $path = realpath(__DIR__.'/../../');
-
-    dump('Shutting down Docker services...');
-    $processDown = new Process(['docker-compose', 'down']);
-    $processDown->setWorkingDirectory($path);
-    $processDown->run();
-
-    if (! $processDown->isSuccessful()) {
-        throw new ProcessFailedException($processDown);
-    }
-
-    dump('Starting Docker services...');
-    $processUp = new Process(['docker-compose', 'up', '-d']);
-    $processUp->setWorkingDirectory($path);
-    $processUp->run();
-
-    if (! $processUp->isSuccessful()) {
-        throw new ProcessFailedException($processUp);
-    }
-
-    dump('Docker services restarted.');
-
-    sleep(3);
-}
-
 it('creates a collection and confirms if it exists in the list', function () {
 
-    // Create a new collection named 'test_collection'
     $response = $this->milvus->collections()->create(
         collectionName: 'test_collection',
         dimension: 128,
     );
 
-    // Expect the creation to be successful
     expect($response->json('code'))->toEqual(200);
 
-    // Sleep to ensure the collection is created
     sleep(1);
 
-    // List all collections
     $response = $this->milvus->collections()->list();
 
-    // Check if 'test_collection' is in the list of collections
     expect($response->collect('data'))->toContain('test_collection');
 
-    // Drop the 'test_collection'
     $response = $this->milvus->collections()->drop(collectionName: 'test_collection');
     expect($response->json('code'))->toEqual(200);
 
-    // Sleep to ensure the collection is dropped
     sleep(1);
 
-    // List collections again to confirm 'test_collection' has been removed
     $response = $this->milvus->collections()->list();
 
     expect($response->collect('data'))->not->toContain('test_collection');
