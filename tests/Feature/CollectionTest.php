@@ -84,9 +84,9 @@ it('can insert stuff into collections', function () {
     $insert = $this->milvus->vector()->insert(
         collectionName: 'add_stuff_into_collections',
         data: [
-            ['vector' => array_fill(0, 128, 0.1)],
-            ['vector' => array_fill(0, 128, 0.2)],
-            ['vector' => array_fill(0, 128, 0.3)],
+            ['vector' => createTestVector(0.1)],
+            ['vector' => createTestVector(0.2)],
+            ['vector' => createTestVector(0.3)],
         ],
     );
 
@@ -115,9 +115,9 @@ it('can insert additional fields into a collection', function () {
     $insert = $this->milvus->vector()->insert(
         collectionName: 'add_stuff_into_collections',
         data: [
-            ['vector' => array_fill(0, 128, 0.1), 'title' => 'untitled document'],
-            ['vector' => array_fill(0, 128, 0.2), 'title' => 'lorem ipsum,'],
-            ['vector' => array_fill(0, 128, 0.3), 'title' => 'i am a title that has content'],
+            ['vector' => createTestVector(0.1), 'title' => 'untitled document'],
+            ['vector' => createTestVector(0.2), 'title' => 'lorem ipsum,'],
+            ['vector' => createTestVector(0.3), 'title' => 'i am a title that has content'],
         ],
     );
 
@@ -154,9 +154,9 @@ it('can search by vector and get the correct item back', function () {
     $insert = $this->milvus->vector()->insert(
         collectionName: 'collection_test',
         data: [
-            ['vector' => array_fill(0, 128, 0.1), 'title' => 'untitled document'],
-            ['vector' => array_fill(0, 128, 0.2), 'title' => 'lorem ipsum,'],
-            ['vector' => array_fill(0, 128, 0.3), 'title' => 'i am a title that has content'],
+            ['vector' => createTestVector(0.1), 'title' => 'untitled document'],
+            ['vector' => createTestVector(0.2), 'title' => 'lorem ipsum,'],
+            ['vector' => createTestVector(0.3), 'title' => 'i am a title that has content'],
         ],
     );
 
@@ -164,7 +164,7 @@ it('can search by vector and get the correct item back', function () {
 
     $query = $this->milvus->vector()->search(
         collectionName: 'collection_test',
-        vector: array_fill(0, 128, 0.1),
+        vector: createTestVector(0.1),
         limit: 1,
         outputFields: ['title'],
     );
