@@ -183,10 +183,12 @@ $insertResponse = $milvus->vector()->insert('blog_posts', $blogPosts);
 Generate a search vector for your query, akin to how you processed the blog posts.
 
 ```php
-$searchVectorResponse = OpenAI::embeddings()->create([
-    'model' => 'text-embedding-ada-002',
-    'input' => 'laravel framework',
-]);
+$searchVectorResponse = OpenAI::client('sk-your-openai-api-key')
+    ->embeddings()
+    ->create([
+        'model' => 'text-embedding-ada-002',
+        'input' => 'laravel framework',
+    ]);
 
 $searchEmbedding = $searchVectorResponse->embeddings[0]->embedding;
 ```
