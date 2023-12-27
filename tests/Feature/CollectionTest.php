@@ -6,7 +6,7 @@ use Symfony\Component\Process\Process;
 
 beforeEach(function () {
     // Restart the Docker Compose system before each test
-//    restartDockerServices();
+    //    restartDockerServices();
     $this->milvus = new Milvus('', 'localhost', '19530');
 });
 
@@ -44,7 +44,7 @@ it('confirms that listing collections in the db is empty', function () {
 
     $response = $this->milvus->collections()->list();
 
-        dd($response->json());
+    dd($response->json());
 
 });
 
