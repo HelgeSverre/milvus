@@ -64,7 +64,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "MilvusServiceProvider"
+                "HelgeSverre\\Milvus\\MilvusServiceProvider"
             ],
             "aliases": {
                 "Milvus": "HelgeSverre\\Milvus\\Facades\\Milvus"
