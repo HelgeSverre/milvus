@@ -61,19 +61,79 @@ For Laravel users, you can use the `Milvus` facade to interact with the Milvus A
 ```php
 use HelgeSverre\Milvus\Facades\Milvus;
 
-// Collection Operations using the facade
-$listCollectionsResponse = Milvus::collections()->list('your-cluster-endpoint', 'your-db-name');
-$createCollectionResponse = Milvus::collections()->create('collection-name', 128);
-$describeCollectionResponse = Milvus::collections()->describe('collection-name');
-$dropCollectionResponse = Milvus::collections()->drop('collection-name');
+// NOTE: dbName is optional and defaults to 'default', this is only relevant if you have multiple databases.
+// List all collections in the 'default' database
+Milvus::collections()->list(
+    dbName: 'default'
+);
 
-// Vector Operations using the facade
-$insertVectorResponse = Milvus::vector()->insert('collection-name', ['vector-data']);
-$searchVectorResponse = Milvus::vector()->search('collection-name', ['vector-query']);
-$deleteVectorResponse = Milvus::vector()->delete('vector-id', 'collection-name');
-$queryVectorResponse = Milvus::vector()->query('collection-name', 'filter-expression');
-$getVectorResponse = Milvus::vector()->get('vector-id', 'collection-name');
-$upsertVectorResponse = Milvus::vector()->upsert('collection-name', ['vector-data']);
+// Create a new collection named 'documents' in the 'default' database with a specified dimension
+Milvus::collections()->create(
+    collectionName: 'documents',
+    dimension: 128,
+    dbname: 'default',
+);
+
+// Describe the structure and properties of the 'documents' collection in the 'default' database
+Milvus::collections()->describe(
+    collectionName: 'documents',
+    dbname: 'default',
+);
+
+// Drop or delete the 'documents' collection from the 'default' database
+Milvus::collections()->drop(
+    collectionName: 'documents',
+    dbname: 'default',
+);
+
+
+// Insert a new vector into the 'documents' collection with additional fields like title and link
+// Note "vector" is a reserved field name and must be used for the vector data
+Milvus::vector()->insert(
+    collectionName: 'documents',
+    data: [
+        'vector' => [0.1, 0.2, 0.3 /* etc... */],
+        "title" => "Document name here",
+        "link" => "https://example.com/document-name-here",
+    ]
+);
+
+// Search for similar vectors in the 'documents' collection using a provided vector
+Milvus::vector()->search(
+    collectionName: 'documents',
+    vector: [0.1, 0.2, 0.3 /* etc... */],
+);
+
+// Delete a vector from the 'documents' collection using its ID
+Milvus::vector()->delete(
+    id: '123129471497',
+    collectionName: 'documents'
+);
+
+// Query the 'documents' collection for specific documents using a filter condition and select specific output fields
+Milvus::vector()->query(
+    collectionName: 'documents',
+    filter: "id in [443300716234671427, 443300716234671426]",
+    outputFields: ["id", "title", "link"],
+);
+
+// Retrieve a specific vector from the 'documents' collection using its ID
+Milvus::vector()->get(
+    id: '123129471497',
+    collectionName: 'documents'
+);
+
+// Update or insert a vector in the 'documents' collection. If the ID exists, it's updated; if not, a new entry is created
+Milvus::vector()->upsert(
+    collectionName: 'documents',
+    data: [
+        'id' => 123129471497,
+        'vector' => [0.1, 0.2, 0.3 /* etc... */],
+        "title" => "Document name here",
+        "link" => "https://example.com/document-name-here",
+    ]
+);
+
 ```
 
 ### Without Laravel
@@ -82,9 +142,7 @@ If you are not using laravel, you will have to create a new instance of the Milv
 user/pass, the host and the port.
 
 ```php
-use HelgeSverre\Milvus\Milvus;
-use HelgeSverre\Milvus\Resource\CollectionOperations;
-use HelgeSverre\Milvus\Resource\VectorOperations;
+use HelgeSverre\Milvus\Facades\Milvus;use HelgeSverre\Milvus\Milvus;
 
 $milvus = new Milvus(
     token: "your-token",
@@ -92,33 +150,92 @@ $milvus = new Milvus(
     port: "19530"
 );
 
+<?php
 
-// Collection Operations
-$collections = $milvus->collections();
-$listCollectionsResponse = $collections->list('your-cluster-endpoint', 'your-db-name');
-$createCollectionResponse = $collections->create('collection-name', 128);
-$describeCollectionResponse = $collections->describe('collection-name');
-$dropCollectionResponse = $collections->drop('collection-name');
+// Import the Milvus facade for easier access to Milvus functions
 
-// Vector Operations
-$vectors = $milvus->vector();
-$insertVectorResponse = $vectors->insert('collection-name', ['vector-data']);
-$searchVectorResponse = $vectors->search('collection-name', ['vector-query']);
-$deleteVectorResponse = $vectors->delete('vector-id', 'collection-name');
-$queryVectorResponse = $vectors->query('collection-name', 'filter-expression');
-$getVectorResponse = $vectors->get('vector-id', 'collection-name');
-$upsertVectorResponse = $vectors->upsert('collection-name', ['vector-data']);
+// NOTE: dbName is optional and defaults to 'default', this is only relevant if you have multiple databases.
+// List all collections in the 'default' database
+$milvus->collections()->list(
+    dbName: 'default'
+);
+
+// Create a new collection named 'documents' in the 'default' database with a specified dimension
+$milvus->collections()->create(
+    collectionName: 'documents',
+    dimension: 128,
+    dbname: 'default',
+);
+
+// Describe the structure and properties of the 'documents' collection in the 'default' database
+$milvus->collections()->describe(
+    collectionName: 'documents',
+    dbname: 'default',
+);
+
+// Drop or delete the 'documents' collection from the 'default' database
+$milvus->collections()->drop(
+    collectionName: 'documents',
+    dbname: 'default',
+);
+
+
+// Insert a new vector into the 'documents' collection with additional fields like title and link
+// Note "vector" is a reserved field name and must be used for the vector data
+$milvus->vector()->insert(
+    collectionName: 'documents',
+    data: [
+        'vector' => [0.1, 0.2, 0.3 /* etc... */],
+        "title" => "Document name here",
+        "link" => "https://example.com/document-name-here",
+    ]
+);
+
+// Search for similar vectors in the 'documents' collection using a provided vector
+$milvus->vector()->search(
+    collectionName: 'documents',
+    vector: [0.1, 0.2, 0.3 /* etc... */],
+);
+
+// Delete a vector from the 'documents' collection using its ID
+$milvus->vector()->delete(
+    id: '123129471497',
+    collectionName: 'documents'
+);
+
+// Query the 'documents' collection for specific documents using a filter condition and select specific output fields
+$milvus->vector()->query(
+    collectionName: 'documents',
+    filter: "id in [443300716234671427, 443300716234671426]",
+    outputFields: ["id", "title", "link"],
+);
+
+// Retrieve a specific vector from the 'documents' collection using its ID
+$milvus->vector()->get(
+    id: '123129471497',
+    collectionName: 'documents'
+);
+
+// Update or insert a vector in the 'documents' collection. If the ID exists, it's updated; if not, a new entry is created
+$milvus->vector()->upsert(
+    collectionName: 'documents',
+    data: [
+        'id' => 123129471497,
+        'vector' => [0.1, 0.2, 0.3 /* etc... */],
+        "title" => "Document name here",
+        "link" => "https://example.com/document-name-here",
+    ]
+);
+
 ```
 
-### Using with Zilliz.com (Hosted Milvus in the clOUD)
+### Using with Zilliz Cloud
 
 If you are using the hosted version of Milvus, you will need to specify the following host and port along with your API
 token:
 
 ```php
 use HelgeSverre\Milvus\Milvus;
-use HelgeSverre\Milvus\Resource\CollectionOperations;
-use HelgeSverre\Milvus\Resource\VectorOperations;
 
 $milvus = new Milvus(
     token: "db_randomstringhere:passwordhere",
