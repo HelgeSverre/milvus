@@ -23,7 +23,7 @@
         "php": "^8.2",
         "saloonphp/saloon": "^3.0",
         "saloonphp/laravel-plugin": "^v3.0.0",
-        "spatie/laravel-data": "^3.10",
+        "spatie/laravel-data": "^3.0|^4.0",
         "spatie/laravel-package-tools": "^1.14.0"
     },
     "require-dev": {
