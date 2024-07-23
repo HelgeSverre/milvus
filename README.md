@@ -142,7 +142,9 @@ If you are not using laravel, you will have to create a new instance of the Milv
 user/pass, the host and the port.
 
 ```php
-use HelgeSverre\Milvus\Facades\Milvus;use HelgeSverre\Milvus\Milvus;
+<?php
+// use HelgeSverre\Milvus\Facades\Milvus;
+use HelgeSverre\Milvus\Milvus;
 
 $milvus = new Milvus(
     token: "your-token",
@@ -150,7 +152,6 @@ $milvus = new Milvus(
     port: "19530"
 );
 
-<?php
 
 // Import the Milvus facade for easier access to Milvus functions
 
@@ -164,13 +165,13 @@ $milvus->collections()->list(
 $milvus->collections()->create(
     collectionName: 'documents',
     dimension: 128,
-    dbname: 'default',
+    dbName: 'default',
 );
 
 // Describe the structure and properties of the 'documents' collection in the 'default' database
 $milvus->collections()->describe(
     collectionName: 'documents',
-    dbname: 'default',
+    dbName: 'default',
 );
 
 // Drop or delete the 'documents' collection from the 'default' database
