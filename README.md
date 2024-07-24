@@ -177,7 +177,7 @@ $milvus->collections()->describe(
 // Drop or delete the 'documents' collection from the 'default' database
 $milvus->collections()->drop(
     collectionName: 'documents',
-    dbname: 'default',
+    dbName: 'default',
 );
 
 
