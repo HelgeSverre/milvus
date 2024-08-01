@@ -3,8 +3,11 @@
 use HelgeSverre\Milvus\Milvus;
 
 beforeEach(function () {
-    $host = defined('MILVUS_HOST') ? MILVUS_HOST : 'localhost';
-    $this->milvus = new Milvus('', $host, '19530');
+    $this->milvus = new Milvus(
+        token: env('MILVUS_TOKEN', ''),
+        host: env('MILVUS_HOST', 'localhost'),
+        port: env('MILVUS_PORT', '19530'),
+    );
 });
 
 it('creates a collection and confirms if it exists in the list', function () {
