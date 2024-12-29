@@ -20,7 +20,7 @@ class GetVector extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/get';
+        return '/v2/vectordb/entities/get';
     }
 
     public function __construct(
@@ -28,6 +28,7 @@ class GetVector extends Request implements HasBody
         protected string $collectionName,
         protected ?array $outputFields = null,
         protected ?string $dbName = null,
+        protected ?array $partitionNames = null,
     ) {
     }
 
@@ -38,6 +39,7 @@ class GetVector extends Request implements HasBody
             'collectionName' => $this->collectionName,
             'outputFields' => $this->outputFields,
             'dbName' => $this->dbName,
+            'partitionNames' => $this->partitionNames,
         ]);
     }
 }

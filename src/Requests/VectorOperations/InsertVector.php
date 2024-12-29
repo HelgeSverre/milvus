@@ -20,13 +20,14 @@ class InsertVector extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/insert';
+        return '/v2/vectordb/entities/insert';
     }
 
     public function __construct(
         protected string $collectionName,
         protected array $data,
         protected ?string $dbName = null,
+        protected ?string $partitionName = null,
     ) {
     }
 
@@ -36,6 +37,7 @@ class InsertVector extends Request implements HasBody
             'data' => $this->data,
             'collectionName' => $this->collectionName,
             'dbName' => $this->dbName,
+            'partitionName' => $this->partitionName,
         ]);
     }
 }

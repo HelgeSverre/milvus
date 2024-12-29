@@ -20,7 +20,7 @@ class CreateCollection extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/collections/create';
+        return '/v2/vectordb/collections/create';
     }
 
     public function __construct(
@@ -28,22 +28,24 @@ class CreateCollection extends Request implements HasBody
         protected int $dimension,
         protected ?string $dbName = null,
         protected ?string $metricType = null,
-        protected ?string $primaryField = null,
-        protected ?string $vectorField = null,
-        protected ?string $description = null,
+        protected ?string $idType = null,
+        protected ?string $autoID = null,
+        protected ?string $primaryFieldName = null,
+        protected ?string $vectorFieldName = null,
     ) {
     }
 
     public function defaultBody(): array
     {
         return array_filter([
-            'dbName' => $this->dbName,
             'collectionName' => $this->collectionName,
             'dimension' => $this->dimension,
+            'dbName' => $this->dbName,
             'metricType' => $this->metricType,
-            'primaryField' => $this->primaryField,
-            'vectorField' => $this->vectorField,
-            'description' => $this->description,
+            'idType' => $this->idType,
+            'autoID' => $this->autoID,
+            'primaryFieldName' => $this->primaryFieldName,
+            'vectorFieldName' => $this->vectorFieldName,
         ]);
     }
 }

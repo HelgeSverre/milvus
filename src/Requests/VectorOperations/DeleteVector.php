@@ -20,22 +20,24 @@ class DeleteVector extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/delete';
+        return '/v2/vectordb/entities/delete';
     }
 
     public function __construct(
-        protected int|string|array $id,
         protected string $collectionName,
+        protected string $filter,
         protected ?string $dbName = null,
+        protected ?string $partitionName = null,
     ) {
     }
 
     protected function defaultBody(): array
     {
         return array_filter([
-            'id' => $this->id,
             'collectionName' => $this->collectionName,
+            'filter' => $this->filter,
             'dbName' => $this->dbName,
+            'partitionName' => $this->partitionName,
         ]);
     }
 }

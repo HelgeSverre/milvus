@@ -20,16 +20,17 @@ class QueryVector extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/query';
+        return '/v2/vectordb/entities/query';
     }
 
     public function __construct(
         protected string $collectionName,
-        protected ?string $filter = null,
+        protected string $filter,
         protected ?int $limit = null,
         protected ?int $offset = null,
         protected ?array $outputFields = null,
-        protected ?string $dbName = null
+        protected ?string $dbName = null,
+        protected ?array $partitionNames = null,
     ) {
     }
 
@@ -42,6 +43,7 @@ class QueryVector extends Request implements HasBody
             'offset' => $this->offset,
             'outputFields' => $this->outputFields,
             'dbName' => $this->dbName,
+            'partitionNames' => $this->partitionNames,
         ]);
     }
 }
