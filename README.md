@@ -71,19 +71,19 @@ Milvus::collections()->list(
 Milvus::collections()->create(
     collectionName: 'documents',
     dimension: 128,
-    dbname: 'default',
+    dbName: 'default',
 );
 
 // Describe the structure and properties of the 'documents' collection in the 'default' database
 Milvus::collections()->describe(
     collectionName: 'documents',
-    dbname: 'default',
+    dbName: 'default',
 );
 
 // Drop or delete the 'documents' collection from the 'default' database
 Milvus::collections()->drop(
     collectionName: 'documents',
-    dbname: 'default',
+    dbName: 'default',
 );
 
 
