@@ -21,12 +21,12 @@ class DropCollection extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/collections/drop';
+        return '/v2/vectordb/collections/drop';
     }
 
     public function __construct(
         protected string $collectionName,
-        protected ?string $dbName = null
+        protected ?string $dbName = null,
     ) {
     }
 

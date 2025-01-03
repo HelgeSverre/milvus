@@ -19,7 +19,10 @@ it('creates a collection and confirms if it exists in the list', function () {
         dimension: 128,
     );
 
-    expect($response->json('code'))->toEqual(200);
+    // Status 0 and empty data is a success response
+    expect($response->status())->toEqual(200);
+    expect($response->json('code'))->toEqual(0);
+    expect($response->json('data'))->toBeEmpty();
 
     sleep(1);
 
@@ -28,7 +31,11 @@ it('creates a collection and confirms if it exists in the list', function () {
     expect($response->collect('data'))->toContain('test_collection');
 
     $response = $this->milvus->collections()->drop(collectionName: 'test_collection');
-    expect($response->json('code'))->toEqual(200);
+
+    // Status 0 and empty data is a success response
+    expect($response->status())->toEqual(200);
+    expect($response->json('code'))->toEqual(0);
+    expect($response->json('data'))->toBeEmpty();
 
     sleep(1);
 
@@ -48,9 +55,9 @@ it('can insert stuff into collections', function () {
     $insert = $this->milvus->vector()->insert(
         collectionName: 'add_stuff_into_collections',
         data: [
-            ['vector' => createTestVector(0.1)],
-            ['vector' => createTestVector(0.2)],
-            ['vector' => createTestVector(0.3)],
+            ['id' => 1, 'vector' => createTestVector(0.1)],
+            ['id' => 2, 'vector' => createTestVector(0.2)],
+            ['id' => 3, 'vector' => createTestVector(0.3)],
         ],
     );
 
@@ -79,9 +86,9 @@ it('can insert additional fields into a collection', function () {
     $insert = $this->milvus->vector()->insert(
         collectionName: 'add_stuff_into_collections',
         data: [
-            ['vector' => createTestVector(0.1), 'title' => 'untitled document'],
-            ['vector' => createTestVector(0.2), 'title' => 'lorem ipsum,'],
-            ['vector' => createTestVector(0.3), 'title' => 'i am a title that has content'],
+            ['id' => 1, 'vector' => createTestVector(0.1), 'title' => 'untitled document'],
+            ['id' => 2, 'vector' => createTestVector(0.2), 'title' => 'lorem ipsum,'],
+            ['id' => 3, 'vector' => createTestVector(0.3), 'title' => 'i am a title that has content'],
         ],
     );
 
@@ -113,14 +120,16 @@ it('can search by vector and get the correct item back', function () {
     $this->milvus->collections()->create(
         collectionName: 'collection_test',
         dimension: 128,
+        // L2 sets the distance between 0 and ∞ (0 is the closest)
+        metricType: 'L2',
     );
 
     $insert = $this->milvus->vector()->insert(
         collectionName: 'collection_test',
         data: [
-            ['vector' => createTestVector(0.1), 'title' => 'untitled document'],
-            ['vector' => createTestVector(0.2), 'title' => 'lorem ipsum,'],
-            ['vector' => createTestVector(0.3), 'title' => 'i am a title that has content'],
+            ['id' => 1, 'vector' => createTestVector(0.1), 'title' => 'untitled document'],
+            ['id' => 2, 'vector' => createTestVector(0.2), 'title' => 'lorem ipsum,'],
+            ['id' => 3, 'vector' => createTestVector(0.3), 'title' => 'i am a title that has content'],
         ],
     );
 
@@ -128,15 +137,16 @@ it('can search by vector and get the correct item back', function () {
 
     $query = $this->milvus->vector()->search(
         collectionName: 'collection_test',
-        vector: createTestVector(0.1),
+        data: [createTestVector(0.1)],
+        annsField: 'vector',
         limit: 1,
         outputFields: ['title'],
     );
 
-    $items = $query->collect('data')->first();
+    $item = $query->collect('data')->first();
 
     expect($query->collect('data')->count())->toEqual(1)
-        ->and($items['title'])->toEqual('untitled document')
-        ->and($items['distance'])->toEqual(0);
+        ->and($item['title'])->toEqual('untitled document')
+        ->and($item['distance'])->toEqual(0);
 
 });

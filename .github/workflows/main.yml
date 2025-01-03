@@ -1,0 +1,55 @@
+name: CI Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  php_tests:
+    name: PHP Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: [8.2, 8.3]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, pdo, dom
+          ini-values: memory_limit=-1
+          coverage: none
+
+      - name: Run docker-compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+
+      - name: Install Dependencies
+        run: composer install --no-progress --no-suggest
+
+      - name: Run Tests
+        run: composer run test
+
+  php_static_analysis:
+    name: PHP Static Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: [8.3]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, pdo, dom
+          ini-values: memory_limit=-1
+          coverage: none
+
+      - name: Install Dependencies
+        run: composer install --no-progress --no-suggest
+
+      - name: Run Static Analysis
+        run: composer run analyse src

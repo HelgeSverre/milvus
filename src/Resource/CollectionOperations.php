@@ -21,18 +21,20 @@ class CollectionOperations extends BaseResource
         int $dimension,
         ?string $dbName = null,
         ?string $metricType = null,
-        ?string $primaryField = null,
-        ?string $vectorField = null,
-        ?string $description = null,
+        ?string $idType = null,
+        ?string $autoID = null,
+        ?string $primaryFieldName = null,
+        ?string $vectorFieldName = null,
     ): Response {
         return $this->connector->send(new CreateCollection(
             collectionName: $collectionName,
             dimension: $dimension,
             dbName: $dbName,
             metricType: $metricType,
-            primaryField: $primaryField,
-            vectorField: $vectorField,
-            description: $description,
+            idType: $idType,
+            autoID: $autoID,
+            primaryFieldName: $primaryFieldName,
+            vectorFieldName: $vectorFieldName,
         ));
     }
 

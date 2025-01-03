@@ -20,18 +20,23 @@ class SearchVector extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/search';
+        return '/v2/vectordb/entities/search';
     }
 
     public function __construct(
         protected string $collectionName,
-        protected array $vector,
+        protected array $data,
+        protected string $annsField,
         protected ?string $filter = null,
         protected ?int $limit = null,
         protected ?int $offset = null,
+        protected ?string $groupingField = null,
+        protected ?int $groupSize = null,
+        protected ?bool $strictGroupSize = null,
         protected ?array $outputFields = null,
-        protected ?array $params = null,
-        protected ?string $dbName = null
+        protected ?array $searchParams = null,
+        protected ?string $dbName = null,
+        protected ?array $partitionNames = null,
     ) {
     }
 
@@ -39,15 +44,20 @@ class SearchVector extends Request implements HasBody
     {
         return array_filter([
             'collectionName' => $this->collectionName,
-            'vector' => $this->vector,
+            'data' => $this->data,
+            'annsField' => $this->annsField,
             'filter' => $this->filter,
             'limit' => $this->limit,
             'offset' => $this->offset,
+            'groupingField' => $this->groupingField,
+            'groupSize' => $this->groupSize,
+            'strictGroupSize' => $this->strictGroupSize,
             'outputFields' => $this->outputFields,
 
             // TODO: restful api only supports "radius" and "range_filter at this time.
-            'params' => $this->params,
+            'searchParams' => $this->searchParams,
             'dbName' => $this->dbName,
+            'partitionNames' => $this->partitionNames,
         ]);
     }
 }
