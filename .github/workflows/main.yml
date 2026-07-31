@@ -10,7 +10,6 @@ jobs:
     name: PHP ${{ matrix.php-version }} / Milvus ${{ matrix.milvus-version }}
     runs-on: ubuntu-latest
     env:
-      DOCKER_VOLUME_DIRECTORY: ${{ runner.temp }}/milvus
       MILVUS_IMAGE: milvusdb/milvus:v${{ matrix.milvus-version }}
       MILVUS_VERSION: ${{ matrix.milvus-version }}
     strategy:
@@ -35,6 +34,9 @@ jobs:
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Configure Docker data directory
+        run: echo "DOCKER_VOLUME_DIRECTORY=$RUNNER_TEMP/milvus" >> "$GITHUB_ENV"
 
       - name: Start Milvus
         run: docker compose up --wait --wait-timeout 180
