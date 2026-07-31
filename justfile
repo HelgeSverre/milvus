@@ -1,57 +1,83 @@
-# List available recipes when `just` is run without arguments.
+# List recipes.
 default:
     @just --list
 
-# Install the locked Composer dependencies.
+# Install dependencies.
+[group('setup')]
 install:
     composer install --prefer-dist --no-interaction --no-progress
 
-# Run the fast unit and architecture test suite.
+# Run fast tests.
+[group('test')]
 test:
     composer test:unit
 
-# Run PHPStan against the package source.
+# Run test coverage.
+[group('test')]
+coverage:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if command -v herd >/dev/null 2>&1; then
+        herd coverage ./vendor/bin/pest tests/Unit tests/ArchTest.php --coverage
+    else
+        ./vendor/bin/pest tests/Unit tests/ArchTest.php --coverage
+    fi
+
+# Run PHPStan.
+[group('quality')]
 analyse:
     composer analyse -- src
 
-# Format the PHP source and tests.
+# Format PHP.
+[group('quality')]
 format:
     composer format
 
-# Check formatting without changing files.
+# Check formatting.
+[group('quality')]
 format-check:
     composer format:test
 
-# Validate composer.json and composer.lock.
+# Validate Composer files.
+[group('quality')]
 validate:
     composer validate --strict
 
-# Audit the locked dependencies for known vulnerabilities.
+# Audit dependencies.
+[group('quality')]
 audit:
     composer audit
 
-# Run every fast release-quality check.
+# Run fast checks.
+[group('quality')]
 check: validate audit format-check analyse test
 
-# Start Milvus and wait for it to become healthy.
+# Start Milvus.
+[group('docker')]
 milvus-up $MILVUS_VERSION="3.0.0":
     MILVUS_IMAGE="milvusdb/milvus:v${MILVUS_VERSION}" docker compose up -d --wait --wait-timeout 180
 
-# Show the current Docker service state.
+# Show containers.
+[group('docker')]
 milvus-status:
     docker compose ps
 
-# Follow the Milvus Docker logs.
+# Follow Milvus logs.
+[group('docker')]
 milvus-logs:
     docker compose logs --follow standalone
 
-# Stop Milvus without deleting its data.
+# Stop Milvus.
+[group('docker')]
 milvus-down:
     docker compose down
 
-# Start a Milvus version and run both live lifecycle tests.
+# Run live tests.
+[group('test')]
 integration $MILVUS_VERSION="3.0.0": (milvus-up MILVUS_VERSION)
     composer test:integration
 
-# Run the complete local release gate against Milvus 3.0.0.
+# Run release gate.
+[group('quality')]
 release-check: check integration
