@@ -25,26 +25,19 @@ class MilvusServiceProvider extends PackageServiceProvider
 
     private function resolveToken(): ?string
     {
-        $token = $this->configuredString('milvus.token');
+        $token = config('milvus.token');
 
-        if ($token !== null) {
+        if (is_string($token) && $token !== '') {
             return $token;
         }
 
-        $username = $this->configuredString('milvus.username');
-        $password = $this->configuredString('milvus.password');
+        $username = config('milvus.username');
+        $password = config('milvus.password');
 
-        if ($username === null || $password === null) {
+        if (! is_string($username) || $username === '' || ! is_string($password) || $password === '') {
             return null;
         }
 
-        return sprintf('%s:%s', $username, $password);
-    }
-
-    private function configuredString(string $key): ?string
-    {
-        $value = config($key);
-
-        return is_string($value) && $value !== '' ? $value : null;
+        return "{$username}:{$password}";
     }
 }
