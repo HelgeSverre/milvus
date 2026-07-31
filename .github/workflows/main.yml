@@ -36,7 +36,9 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Configure Docker data directory
-        run: echo "DOCKER_VOLUME_DIRECTORY=$RUNNER_TEMP/milvus" >> "$GITHUB_ENV"
+        run: |
+          echo "DOCKER_VOLUME_DIRECTORY=$RUNNER_TEMP/milvus" >> "$GITHUB_ENV"
+          install -d -m 0777 "$RUNNER_TEMP/milvus/volumes/milvus"
 
       - name: Start Milvus
         run: docker compose up --wait --wait-timeout 180
