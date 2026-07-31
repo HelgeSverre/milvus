@@ -196,8 +196,6 @@ Without Laravel, create a `Milvus` instance with a token, host, and port. For us
 the raw `username:password` value as the token.
 
 ```php
-<?php
-// use HelgeSverre\Milvus\Facades\Milvus;
 use HelgeSverre\Milvus\Milvus;
 
 $milvus = new Milvus(
@@ -205,89 +203,9 @@ $milvus = new Milvus(
     host: 'localhost',
     port: '19530'
 );
-
-
-// Import the Milvus facade for easier access to Milvus functions
-
-// NOTE: dbName is optional and defaults to 'default', this is only relevant if you have multiple databases.
-// List all collections in the 'default' database
-$milvus->collections()->list(
-    dbName: 'default'
-);
-
-// Create a new collection named 'documents' in the 'default' database with a specified dimension
-$milvus->collections()->create(
-    collectionName: 'documents',
-    dimension: 128,
-    dbName: 'default',
-);
-
-// Describe the structure and properties of the 'documents' collection in the 'default' database
-$milvus->collections()->describe(
-    collectionName: 'documents',
-    dbName: 'default',
-);
-
-// Drop or delete the 'documents' collection from the 'default' database
-$milvus->collections()->drop(
-    collectionName: 'documents',
-    dbName: 'default',
-);
-
-// Insert a new vector into the 'documents' collection with additional fields like title and link
-// Note "vector" is a reserved field name and must be used for the vector data
-$milvus->vector()->insert(
-    collectionName: 'documents',
-    data: [
-        [
-            'id' => 123129471497,
-            'vector' => [0.1, 0.2, 0.3 /* etc... */],
-            'title' => 'Document name here',
-            'link' => 'https://example.com/document-name-here',
-        ],
-    ]
-);
-
-// Search for similar vectors in the 'documents' collection using a provided vector
-$milvus->vector()->search(
-    collectionName: 'documents',
-    data: [[0.1, 0.2, 0.3 /* etc... */]],
-    annsField: 'vector',
-);
-
-// Delete a vector from the 'documents' collection using its ID
-$milvus->vector()->delete(
-    filter: 'id == 123129471497',
-    collectionName: 'documents'
-);
-
-// Query the 'documents' collection for specific documents using a filter condition and select specific output fields
-$milvus->vector()->query(
-    collectionName: 'documents',
-    filter: 'id in [443300716234671427, 443300716234671426]',
-    outputFields: ['id', 'title', 'link'],
-);
-
-// Retrieve a specific vector from the 'documents' collection using its ID
-$milvus->vector()->get(
-    id: '123129471497',
-    collectionName: 'documents'
-);
-
-// Update or insert a vector in the 'documents' collection. If the ID exists, it's updated; if not, a new entry is created
-$milvus->vector()->upsert(
-    collectionName: 'documents',
-    data: [
-        [
-            'id' => 123129471497,
-            'vector' => [0.1, 0.2, 0.3 /* etc... */],
-            'title' => 'Document name here',
-            'link' => 'https://example.com/document-name-here',
-        ],
-    ]
-);
-
 ```
+
+The connector exposes the same methods shown above; replace `Milvus::` with `$milvus->`.
 
 ### Typed responses
 

@@ -13,10 +13,6 @@ All notable changes to this project are documented in this file. This project fo
   search parameters, and searches using entity IDs.
 - Typed and validated DTOs for every response family, including collection fields, indexes, functions, mutation
   results, dynamic entities, search metadata, API error envelopes, and int64-safe IDs.
-- Request-contract tests for every supported endpoint and public-resource forwarding tests for every client method.
-- A Docker-backed lifecycle test covering collection creation, insert, get, query, vector and ID search, upsert,
-  partial update, delete, and cleanup.
-- CI matrices for PHP 8.3–8.5, Laravel 10–13, and Milvus 2.5.21, 2.6.21, and 3.0.0.
 
 ### Changed
 
@@ -34,7 +30,5 @@ All notable changes to this project are documented in this file. This project fo
 - Do not create an authenticator when no token or complete username/password pair is configured.
 - Use the raw `username:password` Milvus token format and prefer an explicitly configured token.
 - Decode documented Milvus 2.5–3.0 response variations without losing unknown or dynamic fields.
-- Correct outdated README request shapes and named arguments.
-- Keep ordinary Pest 2–4 test runs independent of an installed code-coverage driver.
 
 [0.2.0]: https://github.com/HelgeSverre/milvus/compare/v0.1.0...v0.2.0
