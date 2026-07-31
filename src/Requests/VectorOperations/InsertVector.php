@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\VectorOperations;
 
+use HelgeSverre\Milvus\Data\Response\MutationResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Inserts one or more entities into a collection.
  */
-class InsertVector extends Request implements HasBody
+class InsertVector extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -20,15 +21,21 @@ class InsertVector extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/insert';
+        return '/v2/vectordb/entities/insert';
+    }
+
+    protected function responseDto(): string
+    {
+        return MutationResponse::class;
     }
 
     public function __construct(
         protected string $collectionName,
         protected array $data,
         protected ?string $dbName = null,
-    ) {
-    }
+        protected ?string $partitionName = null,
+        protected ?bool $partialUpdate = null,
+    ) {}
 
     protected function defaultBody(): array
     {
@@ -36,6 +43,8 @@ class InsertVector extends Request implements HasBody
             'data' => $this->data,
             'collectionName' => $this->collectionName,
             'dbName' => $this->dbName,
-        ]);
+            'partitionName' => $this->partitionName,
+            'partialUpdate' => $this->partialUpdate,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

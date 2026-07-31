@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\CollectionOperations;
 
+use HelgeSverre\Milvus\Data\Response\EmptyResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Creates a collection in a cluster.
  */
-class CreateCollection extends Request implements HasBody
+class CreateCollection extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -20,30 +21,44 @@ class CreateCollection extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/collections/create';
+        return '/v2/vectordb/collections/create';
+    }
+
+    protected function responseDto(): string
+    {
+        return EmptyResponse::class;
     }
 
     public function __construct(
         protected string $collectionName,
-        protected int $dimension,
+        protected ?int $dimension = null,
         protected ?string $dbName = null,
         protected ?string $metricType = null,
-        protected ?string $primaryField = null,
-        protected ?string $vectorField = null,
+        protected ?string $idType = null,
+        protected ?bool $autoID = null,
+        protected ?string $primaryFieldName = null,
+        protected ?string $vectorFieldName = null,
+        protected ?array $schema = null,
+        protected ?array $indexParams = null,
+        protected ?array $params = null,
         protected ?string $description = null,
-    ) {
-    }
+    ) {}
 
     public function defaultBody(): array
     {
         return array_filter([
-            'dbName' => $this->dbName,
             'collectionName' => $this->collectionName,
             'dimension' => $this->dimension,
+            'dbName' => $this->dbName,
             'metricType' => $this->metricType,
-            'primaryField' => $this->primaryField,
-            'vectorField' => $this->vectorField,
+            'idType' => $this->idType,
+            'autoID' => $this->autoID,
+            'primaryFieldName' => $this->primaryFieldName,
+            'vectorFieldName' => $this->vectorFieldName,
+            'schema' => $this->schema,
+            'indexParams' => $this->indexParams,
+            'params' => $this->params,
             'description' => $this->description,
-        ]);
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

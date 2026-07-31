@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\VectorOperations;
 
+use HelgeSverre\Milvus\Data\Response\SearchResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Conducts a similarity search in a collection.
  */
-class SearchVector extends Request implements HasBody
+class SearchVector extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -20,34 +21,56 @@ class SearchVector extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/search';
+        return '/v2/vectordb/entities/search';
+    }
+
+    protected function responseDto(): string
+    {
+        return SearchResponse::class;
     }
 
     public function __construct(
         protected string $collectionName,
-        protected array $vector,
+        protected ?array $data,
+        protected string $annsField,
         protected ?string $filter = null,
         protected ?int $limit = null,
         protected ?int $offset = null,
+        protected ?string $groupingField = null,
+        protected ?int $groupSize = null,
+        protected ?bool $strictGroupSize = null,
         protected ?array $outputFields = null,
+        protected ?array $searchParams = null,
+        protected ?string $dbName = null,
+        protected ?array $partitionNames = null,
+        protected ?string $consistencyLevel = null,
+        protected ?array $exprParams = null,
+        protected ?array $functionScore = null,
         protected ?array $params = null,
-        protected ?string $dbName = null
-    ) {
-    }
+        protected ?array $ids = null,
+    ) {}
 
     protected function defaultBody(): array
     {
         return array_filter([
             'collectionName' => $this->collectionName,
-            'vector' => $this->vector,
+            'data' => $this->data,
+            'annsField' => $this->annsField,
             'filter' => $this->filter,
             'limit' => $this->limit,
             'offset' => $this->offset,
+            'groupingField' => $this->groupingField,
+            'groupSize' => $this->groupSize,
+            'strictGroupSize' => $this->strictGroupSize,
             'outputFields' => $this->outputFields,
-
-            // TODO: restful api only supports "radius" and "range_filter at this time.
-            'params' => $this->params,
+            'searchParams' => $this->searchParams,
             'dbName' => $this->dbName,
-        ]);
+            'partitionNames' => $this->partitionNames,
+            'consistencyLevel' => $this->consistencyLevel,
+            'exprParams' => $this->exprParams,
+            'functionScore' => $this->functionScore,
+            'params' => $this->params,
+            'ids' => $this->ids,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

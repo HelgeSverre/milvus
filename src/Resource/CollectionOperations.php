@@ -18,11 +18,16 @@ class CollectionOperations extends BaseResource
 
     public function create(
         string $collectionName,
-        int $dimension,
+        ?int $dimension = null,
         ?string $dbName = null,
         ?string $metricType = null,
-        ?string $primaryField = null,
-        ?string $vectorField = null,
+        ?string $idType = null,
+        ?bool $autoID = null,
+        ?string $primaryFieldName = null,
+        ?string $vectorFieldName = null,
+        ?array $schema = null,
+        ?array $indexParams = null,
+        ?array $params = null,
         ?string $description = null,
     ): Response {
         return $this->connector->send(new CreateCollection(
@@ -30,8 +35,13 @@ class CollectionOperations extends BaseResource
             dimension: $dimension,
             dbName: $dbName,
             metricType: $metricType,
-            primaryField: $primaryField,
-            vectorField: $vectorField,
+            idType: $idType,
+            autoID: $autoID,
+            primaryFieldName: $primaryFieldName,
+            vectorFieldName: $vectorFieldName,
+            schema: $schema,
+            indexParams: $indexParams,
+            params: $params,
             description: $description,
         ));
     }

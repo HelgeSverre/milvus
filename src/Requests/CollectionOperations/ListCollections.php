@@ -2,32 +2,43 @@
 
 namespace HelgeSverre\Milvus\Requests\CollectionOperations;
 
+use HelgeSverre\Milvus\Data\Response\CollectionListResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
+use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
+use Saloon\Traits\Body\HasJsonBody;
 
 /**
  * List Collections
  *
  * Lists collections in a cluster.
  */
-class ListCollections extends Request
+class ListCollections extends MilvusRequest implements HasBody
 {
-    protected Method $method = Method::GET;
+    use HasJsonBody;
+
+    protected Method $method = Method::POST;
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/collections';
+        return '/v2/vectordb/collections/list';
+    }
+
+    protected function responseDto(): string
+    {
+        return CollectionListResponse::class;
     }
 
     public function __construct(
         protected ?string $dbName = null,
     ) {
+        $this->body()->setJsonFlags(JSON_FORCE_OBJECT);
     }
 
-    protected function defaultQuery(): array
+    protected function defaultBody(): array
     {
         return array_filter([
             'dbName' => $this->dbName,
-        ]);
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

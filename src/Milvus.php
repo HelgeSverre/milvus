@@ -18,12 +18,13 @@ class Milvus extends Connector
         protected readonly ?string $token,
         protected string $host,
         protected string $port
-    ) {
-    }
+    ) {}
 
-    protected function defaultAuth(): TokenAuthenticator
+    protected function defaultAuth(): ?TokenAuthenticator
     {
-        return new TokenAuthenticator($this->token);
+        return $this->token === null || $this->token === ''
+            ? null
+            : new TokenAuthenticator($this->token);
     }
 
     public function resolveBaseUrl(): string

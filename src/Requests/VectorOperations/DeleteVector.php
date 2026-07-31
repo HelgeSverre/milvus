@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\VectorOperations;
 
+use HelgeSverre\Milvus\Data\Response\MutationResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Deletes one or more entities from a collection.
  */
-class DeleteVector extends Request implements HasBody
+class DeleteVector extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -20,22 +21,32 @@ class DeleteVector extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/delete';
+        return '/v2/vectordb/entities/delete';
+    }
+
+    protected function responseDto(): string
+    {
+        return MutationResponse::class;
     }
 
     public function __construct(
-        protected int|string|array $id,
         protected string $collectionName,
+        protected ?string $filter = null,
         protected ?string $dbName = null,
-    ) {
-    }
+        protected ?string $partitionName = null,
+        protected int|string|null $id = null,
+        protected ?array $exprParams = null,
+    ) {}
 
     protected function defaultBody(): array
     {
         return array_filter([
-            'id' => $this->id,
             'collectionName' => $this->collectionName,
+            'filter' => $this->filter,
             'dbName' => $this->dbName,
-        ]);
+            'partitionName' => $this->partitionName,
+            'id' => $this->id,
+            'exprParams' => $this->exprParams,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

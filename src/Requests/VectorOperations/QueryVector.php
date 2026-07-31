@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\VectorOperations;
 
+use HelgeSverre\Milvus\Data\Response\EntityResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Conducts a vector query in a collection.
  */
-class QueryVector extends Request implements HasBody
+class QueryVector extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -20,7 +21,12 @@ class QueryVector extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/query';
+        return '/v2/vectordb/entities/query';
+    }
+
+    protected function responseDto(): string
+    {
+        return EntityResponse::class;
     }
 
     public function __construct(
@@ -29,9 +35,11 @@ class QueryVector extends Request implements HasBody
         protected ?int $limit = null,
         protected ?int $offset = null,
         protected ?array $outputFields = null,
-        protected ?string $dbName = null
-    ) {
-    }
+        protected ?string $dbName = null,
+        protected ?array $partitionNames = null,
+        protected ?array $exprParams = null,
+        protected ?string $consistencyLevel = null,
+    ) {}
 
     protected function defaultBody(): array
     {
@@ -42,6 +50,9 @@ class QueryVector extends Request implements HasBody
             'offset' => $this->offset,
             'outputFields' => $this->outputFields,
             'dbName' => $this->dbName,
-        ]);
+            'partitionNames' => $this->partitionNames,
+            'exprParams' => $this->exprParams,
+            'consistencyLevel' => $this->consistencyLevel,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

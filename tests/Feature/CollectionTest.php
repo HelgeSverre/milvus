@@ -2,141 +2,120 @@
 
 use HelgeSverre\Milvus\Milvus;
 
-beforeEach(function () {
-    $this->milvus = new Milvus(
-        token: env('MILVUS_TOKEN', ''),
-        host: env('MILVUS_HOST', 'localhost'),
-        port: env('MILVUS_PORT', '19530'),
-    );
-});
+it('supports the configured Milvus collection and vector lifecycle', function () {
+    $milvus = $this->app->make(Milvus::class);
+    $collectionName = 'php_client_'.bin2hex(random_bytes(6));
+    $created = false;
 
-it('creates a collection and confirms if it exists in the list', function () {
+    try {
+        $create = $milvus->collections()->create(
+            collectionName: $collectionName,
+            dimension: 128,
+            metricType: 'L2',
+            autoID: false,
+        );
+        $created = $create->json('code') === 0;
 
-    $this->milvus->collections()->drop('test_collection');
+        expect($create->status())->toBe(200)
+            ->and($create->json('code'))->toBe(0);
 
-    $response = $this->milvus->collections()->create(
-        collectionName: 'test_collection',
-        dimension: 128,
-    );
+        $list = $milvus->collections()->list();
+        $describe = $milvus->collections()->describe($collectionName);
 
-    expect($response->json('code'))->toEqual(200);
+        expect($list->collect('data'))->toContain($collectionName)
+            ->and($describe->json('code'))->toBe(0)
+            ->and($describe->json('data.collectionName'))->toBe($collectionName);
 
-    sleep(1);
+        $insert = $milvus->vector()->insert(
+            collectionName: $collectionName,
+            data: [
+                ['id' => 1, 'vector' => createTestVector(0.1), 'title' => 'first'],
+                ['id' => 2, 'vector' => createTestVector(0.2), 'title' => 'second'],
+                ['id' => 3, 'vector' => createTestVector(0.3), 'title' => 'third'],
+            ],
+        );
 
-    $response = $this->milvus->collections()->list();
+        expect($insert->json('code'))->toBe(0)
+            ->and($insert->json('data.insertCount'))->toBe(3);
 
-    expect($response->collect('data'))->toContain('test_collection');
+        sleep(1);
 
-    $response = $this->milvus->collections()->drop(collectionName: 'test_collection');
-    expect($response->json('code'))->toEqual(200);
+        $get = $milvus->vector()->get(
+            id: [1, 2],
+            collectionName: $collectionName,
+            outputFields: ['title'],
+        );
+        $query = $milvus->vector()->query(
+            collectionName: $collectionName,
+            filter: 'id in [1, 2, 3]',
+            outputFields: ['title'],
+        );
+        $search = $milvus->vector()->search(
+            collectionName: $collectionName,
+            data: [createTestVector(0.1)],
+            annsField: 'vector',
+            limit: 1,
+            outputFields: ['title'],
+            consistencyLevel: 'Strong',
+        );
 
-    sleep(1);
+        expect($get->collect('data'))->toHaveCount(2)
+            ->and($query->collect('data'))->toHaveCount(3)
+            ->and($search->json('data.0.title'))->toBe('first')
+            ->and($search->json('data.0.distance'))->toEqual(0);
 
-    $response = $this->milvus->collections()->list();
+        if (str_starts_with((string) getenv('MILVUS_VERSION'), '3.')) {
+            $searchById = $milvus->vector()->search(
+                collectionName: $collectionName,
+                data: null,
+                annsField: 'vector',
+                limit: 1,
+                outputFields: ['title'],
+                ids: [1],
+            );
 
-    expect($response->collect('data'))->not->toContain('test_collection');
+            expect($searchById->json('code'))->toBe(0)
+                ->and($searchById->json('data.0.title'))->toBe('first');
+        }
 
-});
+        $upsert = $milvus->vector()->upsert(
+            collectionName: $collectionName,
+            data: [
+                ['id' => 2, 'vector' => createTestVector(0.2), 'title' => 'updated'],
+            ],
+        );
+        $delete = $milvus->vector()->delete(
+            collectionName: $collectionName,
+            filter: 'id == 1',
+        );
 
-it('can insert stuff into collections', function () {
+        expect($upsert->json('data.upsertCount'))->toBe(1)
+            ->and($delete->json('data.deleteCount'))->toBe(1);
 
-    $this->milvus->collections()->create(
-        collectionName: 'add_stuff_into_collections',
-        dimension: 128,
-    );
+        sleep(1);
 
-    $insert = $this->milvus->vector()->insert(
-        collectionName: 'add_stuff_into_collections',
-        data: [
-            ['vector' => createTestVector(0.1)],
-            ['vector' => createTestVector(0.2)],
-            ['vector' => createTestVector(0.3)],
-        ],
-    );
+        expect($milvus->vector()->get(2, $collectionName, ['title'])->json('data.0.title'))->toBe('updated')
+            ->and($milvus->vector()->get(1, $collectionName)->collect('data'))->toBeEmpty();
 
-    $insertedIds = $insert->collect('data.insertIds')->join(',');
+        if (str_starts_with((string) getenv('MILVUS_VERSION'), '3.')) {
+            $partialUpdate = $milvus->vector()->upsert(
+                collectionName: $collectionName,
+                data: [['id' => 3, 'title' => 'partially updated']],
+                partialUpdate: true,
+            );
 
-    expect($insert->collect('data.insertIds')->count())->toEqual(3);
+            expect($partialUpdate->json('data.upsertCount'))->toBe(1);
 
-    sleep(1);
+            sleep(1);
 
-    $query = $this->milvus->vector()->query(
-        collectionName: 'add_stuff_into_collections',
-        filter: "id in [$insertedIds]",
-    );
+            expect($milvus->vector()->get(3, $collectionName, ['title'])->json('data.0.title'))
+                ->toBe('partially updated');
+        }
+    } finally {
+        if ($created) {
+            $drop = $milvus->collections()->drop($collectionName);
 
-    expect($query->collect('data')->count())->toEqual(3);
-
-});
-
-it('can insert additional fields into a collection', function () {
-
-    $this->milvus->collections()->create(
-        collectionName: 'add_stuff_into_collections',
-        dimension: 128,
-    );
-
-    $insert = $this->milvus->vector()->insert(
-        collectionName: 'add_stuff_into_collections',
-        data: [
-            ['vector' => createTestVector(0.1), 'title' => 'untitled document'],
-            ['vector' => createTestVector(0.2), 'title' => 'lorem ipsum,'],
-            ['vector' => createTestVector(0.3), 'title' => 'i am a title that has content'],
-        ],
-    );
-
-    $insertedIds = $insert->collect('data.insertIds')->join(',');
-
-    expect($insert->collect('data.insertIds')->count())->toEqual(3);
-
-    sleep(1);
-
-    $query = $this->milvus->vector()->query(
-        collectionName: 'add_stuff_into_collections',
-        filter: "id in [$insertedIds]",
-    );
-
-    expect($query->collect('data')->count())->toEqual(3);
-
-    $items = $query->collect('data');
-
-    expect($items[0]['title'])->toEqual('untitled document')
-        ->and($items[1]['title'])->toEqual('lorem ipsum,')
-        ->and($items[2]['title'])->toEqual('i am a title that has content');
-
-});
-
-it('can search by vector and get the correct item back', function () {
-
-    $this->milvus->collections()->drop('collection_test');
-
-    $this->milvus->collections()->create(
-        collectionName: 'collection_test',
-        dimension: 128,
-    );
-
-    $insert = $this->milvus->vector()->insert(
-        collectionName: 'collection_test',
-        data: [
-            ['vector' => createTestVector(0.1), 'title' => 'untitled document'],
-            ['vector' => createTestVector(0.2), 'title' => 'lorem ipsum,'],
-            ['vector' => createTestVector(0.3), 'title' => 'i am a title that has content'],
-        ],
-    );
-
-    sleep(1);
-
-    $query = $this->milvus->vector()->search(
-        collectionName: 'collection_test',
-        vector: createTestVector(0.1),
-        limit: 1,
-        outputFields: ['title'],
-    );
-
-    $items = $query->collect('data')->first();
-
-    expect($query->collect('data')->count())->toEqual(1)
-        ->and($items['title'])->toEqual('untitled document')
-        ->and($items['distance'])->toEqual(0);
-
+            expect($drop->json('code'))->toBe(0);
+        }
+    }
 });

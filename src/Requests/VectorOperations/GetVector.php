@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\VectorOperations;
 
+use HelgeSverre\Milvus\Data\Response\EntityResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Gets entities by the specified IDs.
  */
-class GetVector extends Request implements HasBody
+class GetVector extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -20,7 +21,12 @@ class GetVector extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/v1/vector/get';
+        return '/v2/vectordb/entities/get';
+    }
+
+    protected function responseDto(): string
+    {
+        return EntityResponse::class;
     }
 
     public function __construct(
@@ -28,8 +34,10 @@ class GetVector extends Request implements HasBody
         protected string $collectionName,
         protected ?array $outputFields = null,
         protected ?string $dbName = null,
-    ) {
-    }
+        protected ?array $partitionNames = null,
+        protected ?string $consistencyLevel = null,
+        protected ?string $partitionName = null,
+    ) {}
 
     protected function defaultBody(): array
     {
@@ -38,6 +46,9 @@ class GetVector extends Request implements HasBody
             'collectionName' => $this->collectionName,
             'outputFields' => $this->outputFields,
             'dbName' => $this->dbName,
-        ]);
+            'partitionNames' => $this->partitionNames,
+            'consistencyLevel' => $this->consistencyLevel,
+            'partitionName' => $this->partitionName,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

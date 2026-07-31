@@ -4,27 +4,46 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/helgesverre/milvus.svg?style=flat-square)](https://packagist.org/packages/helgesverre/milvus)
 [![Total Downloads](https://img.shields.io/packagist/dt/helgesverre/milvus.svg?style=flat-square)](https://packagist.org/packages/helgesverre/milvus)
+[![CI](https://github.com/HelgeSverre/milvus/actions/workflows/main.yml/badge.svg)](https://github.com/HelgeSverre/milvus/actions/workflows/main.yml)
 
 [Milvus](https://github.com/milvus-io/milvus) is an open-source vector database that is highly flexible, reliable, and
 blazing fast. It supports adding,
 deleting, updating, and near real-time search of vectors on a trillion-byte scale.
 
-This package is an API Client for the Milvus v2.3.3 Restful API, and is built on the [Saloon](https://docs.saloon.dev/)
-package.
+This package is a PHP client for the stable Milvus REST v2 endpoints shared by Milvus 2.5 through 3.0. It is tested
+against Milvus 2.5.21, 2.6.21, and 3.0.0, and built on [Saloon](https://docs.saloon.dev/).
 
-Documentation about the Restful API is available on
-the [Milvus website](https://milvus.io/api-reference/restful/v2.3.x/About.md), and an OpenAPI spec is
-available [here](https://raw.githubusercontent.com/milvus-io/web-content/master/API_Reference/milvus-restful/v2.3.x/Restful%20API.openapi.json).
+See the [Milvus REST API documentation](https://milvus.io/api-reference/restful/v3.0.x/About.md) and the official
+[collection](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/05-collection-operations-v2.json)
+and [vector](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/04-vector-operations-v2.json)
+OpenAPI definitions.
+
+See the [changelog](CHANGELOG.md) for the complete v0.2.0 upgrade notes.
+
+## Compatibility
+
+The supported runtime matrix is PHP 8.3–8.5 and Laravel 12–13. Laravel 10 and 11 remain covered by compatibility
+tests for existing applications, but both framework versions are end-of-life and should not be used for new
+installations. Their CI jobs use Composer's command-scoped `--no-blocking` option because current Composer versions
+block their affected upstream framework releases.
+
+| Laravel Version | Tested PHP | Status |
+|-----------------|------------|--------|
+| 13.x            | 8.5        | Supported |
+| 12.x            | 8.4        | Supported |
+| 11.x            | 8.3        | Legacy compatibility |
+| 10.x            | 8.3        | Legacy compatibility |
 
 ## Versions
 
 | Milvus Version | PHP Client Version |
 |----------------|--------------------|
-| v2.3.x         | v0.0.x             |
-| v2.2.x         | Not supported (*)  |
+| v3.0.x         | v0.2.x             |
+| v2.6.x         | v0.2.x             |
+| v2.5.x         | v0.2.x             |
+| v2.3.x         | v0.0.x-v0.1.x      |
 
-(*) But is mostly compatible, the only difference (that I can see) between them is the new Vector Upsert endpoint, and
-new parameters (`params.range_filter` and `params.radius`)  in the Vector Search endpoint.
+PHP 8.3–8.5 is supported. Laravel is optional; the client can also be used as a standalone Saloon connector.
 
 ## Installation
 
@@ -52,6 +71,9 @@ return [
 ];
 ```
 
+`MILVUS_TOKEN` takes precedence. When it is absent, the Laravel service provider builds the token from a complete
+`MILVUS_USERNAME` and `MILVUS_PASSWORD` pair. Milvus expects that credential token in raw `username:password` format.
+
 ## Usage
 
 ### With Laravel
@@ -72,6 +94,7 @@ Milvus::collections()->create(
     collectionName: 'documents',
     dimension: 128,
     dbName: 'default',
+    autoID: false,
 );
 
 // Describe the structure and properties of the 'documents' collection in the 'default' database
@@ -86,35 +109,38 @@ Milvus::collections()->drop(
     dbName: 'default',
 );
 
-
 // Insert a new vector into the 'documents' collection with additional fields like title and link
 // Note "vector" is a reserved field name and must be used for the vector data
 Milvus::vector()->insert(
     collectionName: 'documents',
     data: [
-        'vector' => [0.1, 0.2, 0.3 /* etc... */],
-        "title" => "Document name here",
-        "link" => "https://example.com/document-name-here",
+        [
+            'id' => 123129471497,
+            'vector' => [0.1, 0.2, 0.3 /* etc... */],
+            'title' => 'Document name here',
+            'link' => 'https://example.com/document-name-here',
+        ],
     ]
 );
 
 // Search for similar vectors in the 'documents' collection using a provided vector
 Milvus::vector()->search(
     collectionName: 'documents',
-    vector: [0.1, 0.2, 0.3 /* etc... */],
+    data: [[0.1, 0.2, 0.3 /* etc... */]],
+    annsField: 'vector',
 );
 
 // Delete a vector from the 'documents' collection using its ID
 Milvus::vector()->delete(
-    id: '123129471497',
-    collectionName: 'documents'
+    collectionName: 'documents',
+    filter: 'id == 123129471497',
 );
 
 // Query the 'documents' collection for specific documents using a filter condition and select specific output fields
 Milvus::vector()->query(
     collectionName: 'documents',
-    filter: "id in [443300716234671427, 443300716234671426]",
-    outputFields: ["id", "title", "link"],
+    filter: 'id in [443300716234671427, 443300716234671426]',
+    outputFields: ['id', 'title', 'link'],
 );
 
 // Retrieve a specific vector from the 'documents' collection using its ID
@@ -127,108 +153,86 @@ Milvus::vector()->get(
 Milvus::vector()->upsert(
     collectionName: 'documents',
     data: [
-        'id' => 123129471497,
-        'vector' => [0.1, 0.2, 0.3 /* etc... */],
-        "title" => "Document name here",
-        "link" => "https://example.com/document-name-here",
+        [
+            'id' => 123129471497,
+            'vector' => [0.1, 0.2, 0.3 /* etc... */],
+            'title' => 'Document name here',
+            'link' => 'https://example.com/document-name-here',
+        ],
     ]
 );
 
+```
+
+### Milvus 3 features
+
+Milvus 3 can search using existing entity IDs instead of providing a vector directly:
+
+```php
+Milvus::vector()->search(
+    collectionName: 'documents',
+    data: null,
+    annsField: 'vector',
+    ids: [123129471497],
+    outputFields: ['title', 'link'],
+);
+```
+
+Partial upserts let you update scalar fields without resending the vector:
+
+```php
+Milvus::vector()->upsert(
+    collectionName: 'documents',
+    data: [
+        ['id' => 123129471497, 'title' => 'Updated document name'],
+    ],
+    partialUpdate: true,
+);
 ```
 
 ### Without Laravel
 
-If you are not using laravel, you will have to create a new instance of the Milvus class and provide a token or
-user/pass, the host and the port.
+Without Laravel, create a `Milvus` instance with a token, host, and port. For username/password authentication, pass
+the raw `username:password` value as the token.
 
 ```php
-<?php
-// use HelgeSverre\Milvus\Facades\Milvus;
 use HelgeSverre\Milvus\Milvus;
 
 $milvus = new Milvus(
-    token: "your-token",
-    host: "localhost",
-    port: "19530"
+    token: 'root:Milvus',
+    host: 'localhost',
+    port: '19530'
 );
-
-
-// Import the Milvus facade for easier access to Milvus functions
-
-// NOTE: dbName is optional and defaults to 'default', this is only relevant if you have multiple databases.
-// List all collections in the 'default' database
-$milvus->collections()->list(
-    dbName: 'default'
-);
-
-// Create a new collection named 'documents' in the 'default' database with a specified dimension
-$milvus->collections()->create(
-    collectionName: 'documents',
-    dimension: 128,
-    dbName: 'default',
-);
-
-// Describe the structure and properties of the 'documents' collection in the 'default' database
-$milvus->collections()->describe(
-    collectionName: 'documents',
-    dbName: 'default',
-);
-
-// Drop or delete the 'documents' collection from the 'default' database
-$milvus->collections()->drop(
-    collectionName: 'documents',
-    dbName: 'default',
-);
-
-
-// Insert a new vector into the 'documents' collection with additional fields like title and link
-// Note "vector" is a reserved field name and must be used for the vector data
-$milvus->vector()->insert(
-    collectionName: 'documents',
-    data: [
-        'vector' => [0.1, 0.2, 0.3 /* etc... */],
-        "title" => "Document name here",
-        "link" => "https://example.com/document-name-here",
-    ]
-);
-
-// Search for similar vectors in the 'documents' collection using a provided vector
-$milvus->vector()->search(
-    collectionName: 'documents',
-    vector: [0.1, 0.2, 0.3 /* etc... */],
-);
-
-// Delete a vector from the 'documents' collection using its ID
-$milvus->vector()->delete(
-    id: '123129471497',
-    collectionName: 'documents'
-);
-
-// Query the 'documents' collection for specific documents using a filter condition and select specific output fields
-$milvus->vector()->query(
-    collectionName: 'documents',
-    filter: "id in [443300716234671427, 443300716234671426]",
-    outputFields: ["id", "title", "link"],
-);
-
-// Retrieve a specific vector from the 'documents' collection using its ID
-$milvus->vector()->get(
-    id: '123129471497',
-    collectionName: 'documents'
-);
-
-// Update or insert a vector in the 'documents' collection. If the ID exists, it's updated; if not, a new entry is created
-$milvus->vector()->upsert(
-    collectionName: 'documents',
-    data: [
-        'id' => 123129471497,
-        'vector' => [0.1, 0.2, 0.3 /* etc... */],
-        "title" => "Document name here",
-        "link" => "https://example.com/document-name-here",
-    ]
-);
-
 ```
+
+The connector exposes the same methods shown above; replace `Milvus::` with `$milvus->`.
+
+### Typed responses
+
+Every request still returns a Saloon response, so existing `json()` and `collect()` calls continue to work. Call
+`dto()` when you want a validated response object:
+
+```php
+$search = Milvus::vector()->search(
+    collectionName: 'documents',
+    data: [[0.1, 0.2, 0.3]],
+    annsField: 'vector',
+    limit: 3,
+    outputFields: ['title'],
+)->dto()->throwIfFailed();
+
+foreach ($search->entities as $entity) {
+    echo $entity->id.' '.$entity->field('title').PHP_EOL;
+}
+```
+
+Milvus can report API failures with HTTP status 200, so use `throwIfFailed()` when handling a DTO. It throws a
+`MilvusApiException` containing the Milvus error code. Malformed success payloads throw `InvalidResponseException`
+instead of silently returning partial data.
+
+The response types are `EmptyResponse` for create/drop, `CollectionListResponse`,
+`CollectionDescriptionResponse`, `MutationResponse` for insert/upsert/delete, `EntityResponse` for get/query, and
+`SearchResponse`. Dynamic entity fields and unknown future response fields remain available through `raw`.
 
 ### Using with Zilliz Cloud
 
@@ -239,7 +243,7 @@ token:
 use HelgeSverre\Milvus\Milvus;
 
 $milvus = new Milvus(
-    token: "db_randomstringhere:passwordhere",
+    token: 'db_randomstringhere:passwordhere',
     host: 'https://in03-somerandomstring.api.gcp-us-west1.zillizcloud.com',
     port: '443'
 );
@@ -304,9 +308,9 @@ the dimension of the embeddings generated by OpenAI (`1536` if you are using the
 
 ```php
 $milvus = new Milvus(
-    token: "your-token",
-    host: "localhost",
-    port: "19530"
+    token: 'your-token',
+    host: 'localhost',
+    port: '19530'
 );
 
 
@@ -321,7 +325,6 @@ $milvus->collections()->create(
 Insert these embeddings, along with other blog post data, into your Milvus collection.
 
 ```php
-
 $insertResponse = $milvus->vector()->insert('blog_posts', $blogPosts);
 ```
 
@@ -347,16 +350,17 @@ Use the Milvus client to perform a search with the generated embedding.
 ```php
 $searchResponse = $milvus->vector()->search(
     collectionName: 'blog_posts',
-    vector: $searchEmbedding,
+    data: [$searchEmbedding],
+    annsField: 'vector',
     limit: 3,
     outputFields: ['title', 'summary', 'tags']
-);
+)->dto()->throwIfFailed();
 
 // Output the search results
-foreach ($searchResponse as $result) {
-    echo "Title: " . $result['title'] . "\n";
-    echo "Summary: " . $result['summary'] . "\n";
-    echo "Tags: " . implode(', ', $result['tags']) . "\n\n";
+foreach ($searchResponse->entities as $result) {
+    echo "Title: " . $result->field('title') . "\n";
+    echo "Summary: " . $result->field('summary') . "\n";
+    echo "Tags: " . implode(', ', $result->field('tags', [])) . "\n\n";
 }
 ```
 
@@ -366,16 +370,16 @@ To quickly get started with Milvus, you can run it in Docker, by using the follo
 
 ```bash
 # Download the docker-compose.yml file
-wget https://github.com/milvus-io/milvus/releases/download/v2.3.3/milvus-standalone-docker-compose.yml -O docker-compose.yml
+wget https://github.com/milvus-io/milvus/releases/download/v3.0.0/milvus-standalone-docker-compose.yml -O docker-compose.yml
 
 # Start Milvus
-docker compose up -d
+docker compose up --wait --wait-timeout 180
 ```
 
 A healthcheck endpoint will now be available on `http://localhost:9091/healthz`, and the Milvus API will be available
 on `http://localhost:19530`.
 
-To stop Milvus, run `docker compose down`, to wipe all the data, run `docker compose down -v`.
+To stop Milvus, run `docker compose down`. Data is stored in the local `volumes/` directory.
 
 For more
 details [Installing Milvus Standalone with Docker Compose](https://milvus.io/docs/install_standalone-docker.md)
@@ -385,15 +389,33 @@ Milvus and provides a hosted version of Milvus in the Cloud ☁️.
 
 ## Testing
 
+The fast suite verifies request serialization, response decoding and edge cases, authentication, Laravel
+service-provider resolution, and architecture rules without contacting Milvus:
+
+```bash
+composer test:unit
+```
+
+The integration suite requires Docker and performs a complete lifecycle against a real Milvus instance:
+
 ```bash
 cp .env.example .env
-
-## Start a local Milvus instance, it takes awhile to boot up
-docker compose up -d
- 
-composer test
-composer analyse src
+docker compose up --wait --wait-timeout 180
+composer test:integration
+docker compose down --volumes
 ```
+
+Run the remaining release checks with:
+
+```bash
+composer analyse src
+composer format:test
+composer validate --strict
+composer audit
+```
+
+CI repeats the integration test against Milvus 2.5.21, 2.6.21, and 3.0.0, and runs the package suite across PHP
+8.3–8.5 and Laravel 10–13.
 
 ## License
 

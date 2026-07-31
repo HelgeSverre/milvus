@@ -20,23 +20,18 @@
         }
     ],
     "require": {
-        "php": "^8.1",
-        "saloonphp/saloon": "^3.0",
-        "saloonphp/laravel-plugin": "^v3.0.0",
-        "spatie/laravel-data": "^3.0|^4.0",
-        "spatie/laravel-package-tools": "^1.14.0"
+        "php": "^8.3",
+        "saloonphp/saloon": "^4.0",
+        "spatie/laravel-package-tools": "^1.93"
     },
     "require-dev": {
         "laravel/pint": "^1.0",
-        "nunomaduro/collision": "^7.8",
-        "larastan/larastan": "^2.0.1",
-        "orchestra/testbench": "^8.8",
-        "pestphp/pest": "^2.20",
-        "pestphp/pest-plugin-arch": "^2.0",
-        "pestphp/pest-plugin-laravel": "^2.0",
+        "larastan/larastan": "^2.9|^3.10",
+        "orchestra/testbench": "^8.37|^9.17|^10.11|^11.1",
+        "pestphp/pest": "^2.36|^3.8|^4.7",
         "phpstan/extension-installer": "^1.1",
-        "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpstan/phpstan-phpunit": "^1.0"
+        "phpstan/phpstan-deprecation-rules": "^1.0|^2.0",
+        "phpstan/phpstan-phpunit": "^1.0|^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -50,9 +45,12 @@
     },
     "scripts": {
         "analyse": "vendor/bin/phpstan analyse",
-        "test": "vendor/bin/pest",
+        "test": "vendor/bin/pest --no-coverage",
+        "test:unit": "vendor/bin/pest tests/Unit tests/ArchTest.php --no-coverage",
+        "test:integration": "vendor/bin/pest tests/Feature/CollectionTest.php tests/Feature/ResponseDtoIntegrationTest.php --no-coverage",
         "test-coverage": "vendor/bin/pest --coverage",
-        "format": "vendor/bin/pint"
+        "format": "vendor/bin/pint",
+        "format:test": "vendor/bin/pint --test"
     },
     "config": {
         "sort-packages": true,
@@ -70,7 +68,5 @@
                 "Milvus": "HelgeSverre\\Milvus\\Facades\\Milvus"
             }
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }

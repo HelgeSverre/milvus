@@ -5,17 +5,13 @@ namespace HelgeSverre\Milvus\Tests;
 use Dotenv\Dotenv;
 use HelgeSverre\Milvus\MilvusServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Saloon\Laravel\SaloonServiceProvider;
-use Spatie\LaravelData\LaravelDataServiceProvider;
 
 class TestCase extends Orchestra
 {
     protected function getPackageProviders($app)
     {
         return [
-            SaloonServiceProvider::class,
             MilvusServiceProvider::class,
-            LaravelDataServiceProvider::class,
         ];
     }
 

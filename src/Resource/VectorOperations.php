@@ -14,14 +14,20 @@ use Saloon\Http\Response;
 class VectorOperations extends BaseResource
 {
     public function delete(
-        int|string|array $id,
         string $collectionName,
+        ?string $filter = null,
         ?string $dbName = null,
+        ?string $partitionName = null,
+        int|string|null $id = null,
+        ?array $exprParams = null,
     ): Response {
         return $this->connector->send(new DeleteVector(
-            id: $id,
             collectionName: $collectionName,
+            filter: $filter,
             dbName: $dbName,
+            partitionName: $partitionName,
+            id: $id,
+            exprParams: $exprParams,
         ));
     }
 
@@ -29,33 +35,57 @@ class VectorOperations extends BaseResource
         string $collectionName,
         array $data,
         ?string $dbName = null,
+        ?string $partitionName = null,
+        ?bool $partialUpdate = null,
     ): Response {
         return $this->connector->send(new InsertVector(
             collectionName: $collectionName,
             data: $data,
             dbName: $dbName,
+            partitionName: $partitionName,
+            partialUpdate: $partialUpdate,
         ));
     }
 
     public function search(
         string $collectionName,
-        array $vector,
+        ?array $data,
+        string $annsField,
         ?string $filter = null,
         ?int $limit = null,
         ?int $offset = null,
+        ?string $groupingField = null,
+        ?int $groupSize = null,
+        ?bool $strictGroupSize = null,
         ?array $outputFields = null,
+        ?array $searchParams = null,
+        ?string $dbName = null,
+        ?array $partitionNames = null,
+        ?string $consistencyLevel = null,
+        ?array $exprParams = null,
+        ?array $functionScore = null,
         ?array $params = null,
-        ?string $dbName = null
+        ?array $ids = null,
     ): Response {
         return $this->connector->send(new SearchVector(
             collectionName: $collectionName,
-            vector: $vector,
+            data: $data,
+            annsField: $annsField,
             filter: $filter,
             limit: $limit,
             offset: $offset,
+            groupingField: $groupingField,
+            groupSize: $groupSize,
+            strictGroupSize: $strictGroupSize,
             outputFields: $outputFields,
-            params: $params,
+            searchParams: $searchParams,
             dbName: $dbName,
+            partitionNames: $partitionNames,
+            consistencyLevel: $consistencyLevel,
+            exprParams: $exprParams,
+            functionScore: $functionScore,
+            params: $params,
+            ids: $ids,
         ));
     }
 
@@ -65,7 +95,10 @@ class VectorOperations extends BaseResource
         ?int $limit = null,
         ?int $offset = null,
         ?array $outputFields = null,
-        ?string $dbName = null
+        ?string $dbName = null,
+        ?array $partitionNames = null,
+        ?array $exprParams = null,
+        ?string $consistencyLevel = null,
     ): Response {
         return $this->connector->send(new QueryVector(
             collectionName: $collectionName,
@@ -74,6 +107,9 @@ class VectorOperations extends BaseResource
             offset: $offset,
             outputFields: $outputFields,
             dbName: $dbName,
+            partitionNames: $partitionNames,
+            exprParams: $exprParams,
+            consistencyLevel: $consistencyLevel,
         ));
     }
 
@@ -82,12 +118,18 @@ class VectorOperations extends BaseResource
         string $collectionName,
         ?array $outputFields = null,
         ?string $dbName = null,
+        ?array $partitionNames = null,
+        ?string $consistencyLevel = null,
+        ?string $partitionName = null,
     ): Response {
         return $this->connector->send(new GetVector(
             id: $id,
             collectionName: $collectionName,
             outputFields: $outputFields,
             dbName: $dbName,
+            partitionNames: $partitionNames,
+            consistencyLevel: $consistencyLevel,
+            partitionName: $partitionName,
         ));
     }
 
@@ -95,11 +137,15 @@ class VectorOperations extends BaseResource
         string $collectionName,
         array $data,
         ?string $dbName = null,
+        ?string $partitionName = null,
+        ?bool $partialUpdate = null,
     ): Response {
         return $this->connector->send(new UpsertVector(
             collectionName: $collectionName,
             data: $data,
             dbName: $dbName,
+            partitionName: $partitionName,
+            partialUpdate: $partialUpdate,
         ));
     }
 }
