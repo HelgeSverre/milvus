@@ -4,6 +4,7 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/helgesverre/milvus.svg?style=flat-square)](https://packagist.org/packages/helgesverre/milvus)
 [![Total Downloads](https://img.shields.io/packagist/dt/helgesverre/milvus.svg?style=flat-square)](https://packagist.org/packages/helgesverre/milvus)
+[![CI](https://github.com/HelgeSverre/milvus/actions/workflows/main.yml/badge.svg)](https://github.com/HelgeSverre/milvus/actions/workflows/main.yml)
 
 [Milvus](https://github.com/milvus-io/milvus) is an open-source vector database that is highly flexible, reliable, and
 blazing fast. It supports adding,
@@ -16,6 +17,10 @@ See the [Milvus REST API documentation](https://milvus.io/api-reference/restful/
 [collection](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/05-collection-operations-v2.json)
 and [vector](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/04-vector-operations-v2.json)
 OpenAPI definitions.
+
+See the [changelog](CHANGELOG.md) for the complete v0.2.0 upgrade notes.
+
+## Compatibility
 
 The supported runtime matrix is PHP 8.3–8.5 and Laravel 12–13. Laravel 10 and 11 remain covered by compatibility
 tests for existing applications, but both framework versions are end-of-life and should not be used for new
@@ -37,6 +42,8 @@ block their affected upstream framework releases.
 | v2.6.x         | v0.2.x             |
 | v2.5.x         | v0.2.x             |
 | v2.3.x         | v0.0.x-v0.1.x      |
+
+PHP 8.3–8.5 is supported. Laravel is optional; the client can also be used as a standalone Saloon connector.
 
 ## Installation
 
@@ -63,6 +70,9 @@ return [
     'port' => env('MILVUS_PORT', '19530'),
 ];
 ```
+
+`MILVUS_TOKEN` takes precedence. When it is absent, the Laravel service provider builds the token from a complete
+`MILVUS_USERNAME` and `MILVUS_PASSWORD` pair. Milvus expects that credential token in raw `username:password` format.
 
 ## Usage
 
@@ -154,10 +164,36 @@ Milvus::vector()->upsert(
 
 ```
 
+### Milvus 3 features
+
+Milvus 3 can search using existing entity IDs instead of providing a vector directly:
+
+```php
+Milvus::vector()->search(
+    collectionName: 'documents',
+    data: null,
+    annsField: 'vector',
+    ids: [123129471497],
+    outputFields: ['title', 'link'],
+);
+```
+
+Partial upserts let you update scalar fields without resending the vector:
+
+```php
+Milvus::vector()->upsert(
+    collectionName: 'documents',
+    data: [
+        ['id' => 123129471497, 'title' => 'Updated document name'],
+    ],
+    partialUpdate: true,
+);
+```
+
 ### Without Laravel
 
-If you are not using laravel, you will have to create a new instance of the Milvus class and provide a token or
-user/pass, the host and the port.
+Without Laravel, create a `Milvus` instance with a token, host, and port. For username/password authentication, pass
+the raw `username:password` value as the token.
 
 ```php
 <?php
@@ -165,7 +201,7 @@ user/pass, the host and the port.
 use HelgeSverre\Milvus\Milvus;
 
 $milvus = new Milvus(
-    token: 'your-token',
+    token: 'root:Milvus',
     host: 'localhost',
     port: '19530'
 );
@@ -408,20 +444,33 @@ Milvus and provides a hosted version of Milvus in the Cloud ☁️.
 
 ## Testing
 
+The fast suite verifies request serialization, every public resource method, authentication, Laravel service-provider
+resolution, and architecture rules without contacting Milvus:
+
+```bash
+composer test:unit
+```
+
+The integration suite requires Docker and performs a complete lifecycle against a real Milvus instance:
+
 ```bash
 cp .env.example .env
-
-# Run the fast request-contract tests
-composer test:unit
-
-# Start the default pinned Milvus version and run the live lifecycle test
 docker compose up --wait --wait-timeout 180
 composer test:integration
 docker compose down --volumes
+```
 
+Run the remaining release checks with:
+
+```bash
 composer analyse src
 composer format:test
+composer validate --strict
+composer audit
 ```
+
+CI repeats the integration test against Milvus 2.5.21, 2.6.21, and 3.0.0, and runs the package suite across PHP
+8.3–8.5 and Laravel 10–13.
 
 ## License
 

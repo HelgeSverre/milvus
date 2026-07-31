@@ -203,10 +203,12 @@ it('matches the Milvus REST v2 request contract', function (Request $request, st
 it('supports authenticated and unauthenticated Milvus servers', function () {
     $authenticated = new Milvus('root:Milvus', 'localhost', '19530');
     $unauthenticated = new Milvus(null, 'localhost', '19530');
+    $emptyToken = new Milvus('', 'localhost', '19530');
 
     expect($authenticated->getAuthenticator())->toBeInstanceOf(TokenAuthenticator::class)
         ->and($authenticated->getAuthenticator()->token)->toBe('root:Milvus')
-        ->and($unauthenticated->getAuthenticator())->toBeNull();
+        ->and($unauthenticated->getAuthenticator())->toBeNull()
+        ->and($emptyToken->getAuthenticator())->toBeNull();
 });
 
 it('builds the API token from configured credentials', function () {
