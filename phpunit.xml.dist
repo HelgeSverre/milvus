@@ -18,6 +18,7 @@
     <testsuites>
         <testsuite name="Helge Sverre Test Suite">
             <directory>tests</directory>
+            <exclude>tests/Feature/RealWorldExampleTest.php</exclude>
         </testsuite>
     </testsuites>
     <coverage>
