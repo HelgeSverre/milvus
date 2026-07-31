@@ -289,6 +289,33 @@ $milvus->vector()->upsert(
 
 ```
 
+### Typed responses
+
+Every request still returns a Saloon response, so existing `json()` and `collect()` calls continue to work. Call
+`dto()` when you want a validated response object:
+
+```php
+$search = Milvus::vector()->search(
+    collectionName: 'documents',
+    data: [[0.1, 0.2, 0.3]],
+    annsField: 'vector',
+    limit: 3,
+    outputFields: ['title'],
+)->dto()->throwIfFailed();
+
+foreach ($search->entities as $entity) {
+    echo $entity->id.' '.$entity->field('title').PHP_EOL;
+}
+```
+
+Milvus can report API failures with HTTP status 200, so use `throwIfFailed()` when handling a DTO. It throws a
+`MilvusApiException` containing the Milvus error code. Malformed success payloads throw `InvalidResponseException`
+instead of silently returning partial data.
+
+The response types are `EmptyResponse` for create/drop, `CollectionListResponse`,
+`CollectionDescriptionResponse`, `MutationResponse` for insert/upsert/delete, `EntityResponse` for get/query, and
+`SearchResponse`. Dynamic entity fields and unknown future response fields remain available through `raw`.
+
 ### Using with Zilliz Cloud
 
 If you are using the hosted version of Milvus, you will need to specify the following host and port along with your API
@@ -409,13 +436,13 @@ $searchResponse = $milvus->vector()->search(
     annsField: 'vector',
     limit: 3,
     outputFields: ['title', 'summary', 'tags']
-);
+)->dto()->throwIfFailed();
 
 // Output the search results
-foreach ($searchResponse as $result) {
-    echo "Title: " . $result['title'] . "\n";
-    echo "Summary: " . $result['summary'] . "\n";
-    echo "Tags: " . implode(', ', $result['tags']) . "\n\n";
+foreach ($searchResponse->entities as $result) {
+    echo "Title: " . $result->field('title') . "\n";
+    echo "Summary: " . $result->field('summary') . "\n";
+    echo "Tags: " . implode(', ', $result->field('tags', [])) . "\n\n";
 }
 ```
 
@@ -444,8 +471,8 @@ Milvus and provides a hosted version of Milvus in the Cloud ☁️.
 
 ## Testing
 
-The fast suite verifies request serialization, every public resource method, authentication, Laravel service-provider
-resolution, and architecture rules without contacting Milvus:
+The fast suite verifies request serialization, response decoding and edge cases, authentication, Laravel
+service-provider resolution, and architecture rules without contacting Milvus:
 
 ```bash
 composer test:unit

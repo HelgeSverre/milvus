@@ -354,6 +354,39 @@ it('treats a Milvus error envelope as failure even when HTTP status is 200', fun
     }
 });
 
+it('does not parse endpoint data from failed envelopes', function (MilvusRequest $request, string $expectedDto) {
+    $dto = decodeMilvusResponse($request, [
+        'code' => 65535,
+        'message' => 'operation failed',
+        'data' => 'error details may use a non-success shape',
+    ]);
+
+    expect($dto)->toBeInstanceOf($expectedDto)
+        ->and($dto->successful())->toBeFalse()
+        ->and(fn () => $dto->throwIfFailed())
+        ->toThrow(MilvusApiException::class, 'operation failed');
+})->with([
+    'empty response' => [new CreateCollection('documents'), EmptyResponse::class],
+    'collection list' => [new ListCollections, CollectionListResponse::class],
+    'collection description' => [
+        new DescribeCollection('documents'),
+        CollectionDescriptionResponse::class,
+    ],
+    'mutation response' => [new InsertVector('documents', []), MutationResponse::class],
+    'entity response' => [new QueryVector('documents'), EntityResponse::class],
+    'search response' => [
+        new SearchVector('documents', [[0.1]], 'vector'),
+        SearchResponse::class,
+    ],
+]);
+
+it('provides a useful fallback message when Milvus omits one', function () {
+    $dto = decodeMilvusResponse(new ListCollections, ['code' => 5]);
+
+    expect(fn () => $dto->throwIfFailed())
+        ->toThrow(MilvusApiException::class, 'Milvus API request failed with code 5.');
+});
+
 it('rejects malformed JSON without leaking the response body', function () {
     expect(fn () => decodeMilvusResponse(new ListCollections, '{"code":0,"secret":"token"'))
         ->toThrow(InvalidResponseException::class, 'Milvus returned malformed JSON.');
@@ -375,6 +408,11 @@ it('rejects invalid response shapes at the exact failing path', function (
     'string response code' => [
         new ListCollections,
         ['code' => '0', 'data' => []],
+        '"code"',
+    ],
+    'boolean response code' => [
+        new ListCollections,
+        ['code' => true, 'data' => []],
         '"code"',
     ],
     'top-level lists are not response objects' => [
@@ -407,6 +445,21 @@ it('rejects invalid response shapes at the exact failing path', function (
         ['code' => 0, 'data' => ['collectionName' => 'documents', 'autoID' => 'true']],
         '"data.autoID"',
     ],
+    'collection IDs must be integer or string' => [
+        new DescribeCollection('documents'),
+        ['code' => 0, 'data' => ['collectionName' => 'documents', 'collectionID' => false]],
+        '"data.collectionID"',
+    ],
+    'load state must be a string' => [
+        new DescribeCollection('documents'),
+        ['code' => 0, 'data' => ['collectionName' => 'documents', 'load' => []]],
+        '"data.load"',
+    ],
+    'external spec must be JSON encoded as a string' => [
+        new DescribeCollection('documents'),
+        ['code' => 0, 'data' => ['collectionName' => 'documents', 'externalSpec' => []]],
+        '"data.externalSpec"',
+    ],
     'field entries must be objects' => [
         new DescribeCollection('documents'),
         ['code' => 0, 'data' => ['collectionName' => 'documents', 'fields' => ['bad']]],
@@ -433,6 +486,50 @@ it('rejects invalid response shapes at the exact failing path', function (
         ]],
         '"data.fields.0.params"',
     ],
+    'field default values follow the string schema' => [
+        new DescribeCollection('documents'),
+        ['code' => 0, 'data' => [
+            'collectionName' => 'documents',
+            'fields' => [['name' => 'status', 'type' => 'VarChar', 'defaultValue' => 1]],
+        ]],
+        '"data.fields.0.defaultValue"',
+    ],
+    'function input names must be a list of strings' => [
+        new DescribeCollection('documents'),
+        ['code' => 0, 'data' => [
+            'collectionName' => 'documents',
+            'functions' => [[
+                'name' => 'embed',
+                'type' => 'TextEmbedding',
+                'inputFieldNames' => ['text', 2],
+            ]],
+        ]],
+        '"data.functions.0.inputFieldNames.1"',
+    ],
+    'function params must be an object' => [
+        new DescribeCollection('documents'),
+        ['code' => 0, 'data' => [
+            'collectionName' => 'documents',
+            'functions' => [['name' => 'embed', 'type' => 'TextEmbedding', 'params' => 'bad']],
+        ]],
+        '"data.functions.0.params"',
+    ],
+    'index field names are required' => [
+        new DescribeCollection('documents'),
+        ['code' => 0, 'data' => [
+            'collectionName' => 'documents',
+            'indexes' => [['indexName' => 'vector_idx']],
+        ]],
+        '"data.indexes.0.fieldName"',
+    ],
+    'collection properties require string values' => [
+        new DescribeCollection('documents'),
+        ['code' => 0, 'data' => [
+            'collectionName' => 'documents',
+            'properties' => [['key' => 'ttl', 'value' => 3600]],
+        ]],
+        '"data.properties.0.value"',
+    ],
     'mutation counts must be integers' => [
         new InsertVector('documents', []),
         ['code' => 0, 'data' => ['insertCount' => '1']],
@@ -442,6 +539,11 @@ it('rejects invalid response shapes at the exact failing path', function (
         new InsertVector('documents', []),
         ['code' => 0, 'data' => ['insertIds' => [['id' => 1]]]],
         '"data.insertIds.0"',
+    ],
+    'mutation IDs must be a list' => [
+        new InsertVector('documents', []),
+        ['code' => 0, 'data' => ['insertIds' => ['first' => '1']]],
+        '"data.insertIds"',
     ],
     'entity data must be a list' => [
         new QueryVector('documents'),
@@ -477,5 +579,15 @@ it('rejects invalid response shapes at the exact failing path', function (
         new QueryVector('documents'),
         ['code' => 0, 'data' => [], 'scanned_total_bytes' => 1.5],
         '"scanned_total_bytes"',
+    ],
+    'operation cost must be an integer' => [
+        new QueryVector('documents'),
+        ['code' => 0, 'data' => [], 'cost' => 1.5],
+        '"cost"',
+    ],
+    'cache hit ratio must be numeric' => [
+        new QueryVector('documents'),
+        ['code' => 0, 'data' => [], 'cache_hit_ratio' => '0.5'],
+        '"cache_hit_ratio"',
     ],
 ]);

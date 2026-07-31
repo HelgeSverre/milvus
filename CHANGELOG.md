@@ -11,6 +11,8 @@ All notable changes to this project are documented in this file. This project fo
 - Custom collection schemas, index parameters, collection descriptions, and collection-level parameters.
 - Milvus 3 support for partial inserts and upserts, expression parameters, consistency levels, function scoring,
   search parameters, and searches using entity IDs.
+- Typed and validated DTOs for every response family, including collection fields, indexes, functions, mutation
+  results, dynamic entities, search metadata, API error envelopes, and int64-safe IDs.
 - Request-contract tests for every supported endpoint and public-resource forwarding tests for every client method.
 - A Docker-backed lifecycle test covering collection creation, insert, get, query, vector and ID search, upsert,
   partial update, delete, and cleanup.
@@ -31,6 +33,7 @@ All notable changes to this project are documented in this file. This project fo
 - Preserve `false`, `0`, and empty-string values when serializing request bodies.
 - Do not create an authenticator when no token or complete username/password pair is configured.
 - Use the raw `username:password` Milvus token format and prefer an explicitly configured token.
+- Decode documented Milvus 2.5–3.0 response variations without losing unknown or dynamic fields.
 - Correct outdated README request shapes and named arguments.
 - Keep ordinary Pest 2–4 test runs independent of an installed code-coverage driver.
 
