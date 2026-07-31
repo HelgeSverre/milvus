@@ -5,12 +5,15 @@ All notable changes to this project are documented in this file. This project fo
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-31
+
 ### Added
 
 - Database create, list, describe, and drop operations through `Milvus::databases()`.
 - Typed database list, description, and property DTOs with int64-safe IDs and preserved future fields.
 - Live Docker coverage for a full-client smoke test, database properties, custom schemas, AutoID, scalar-filtered
   search, and API failures across Milvus 2.5, 2.6, and 3.0.
+- Automated Codecov reporting for the unit and architecture test suite.
 - README guides for database management, filtered search, custom schemas, AutoID, and Zilliz REST v2 configuration.
 
 ### Changed
@@ -48,5 +51,6 @@ All notable changes to this project are documented in this file. This project fo
 - Use the raw `username:password` Milvus token format and prefer an explicitly configured token.
 - Decode documented Milvus 2.5–3.0 response variations without losing unknown or dynamic fields.
 
-[Unreleased]: https://github.com/HelgeSverre/milvus/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/HelgeSverre/milvus/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/HelgeSverre/milvus/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/HelgeSverre/milvus/compare/v0.1.0...v0.2.0
