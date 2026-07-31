@@ -14,7 +14,8 @@ This package is a PHP client for the stable Milvus REST v2 endpoints shared by M
 against Milvus 2.5.21, 2.6.21, and 3.0.0, and built on [Saloon](https://docs.saloon.dev/).
 
 See the [Milvus REST API documentation](https://milvus.io/api-reference/restful/v3.0.x/About.md) and the official
-[collection](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/05-collection-operations-v2.json)
+[database](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/06-database-operations-v2.json),
+[collection](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/05-collection-operations-v2.json),
 and [vector](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/04-vector-operations-v2.json)
 OpenAPI definitions.
 
@@ -164,6 +165,74 @@ Milvus::vector()->upsert(
 
 ```
 
+### Managing databases
+
+Database operations use the Milvus REST v2 database endpoints. The REST API is stateless, so pass `dbName` to each
+collection or vector operation that should run outside the `default` database.
+
+```php
+Milvus::databases()->create(
+    dbName: 'analytics',
+    properties: ['database.replica.number' => 1],
+)->dto()->throwIfFailed();
+
+$databases = Milvus::databases()->list()->dto()->throwIfFailed();
+$analytics = Milvus::databases()->describe('analytics')->dto()->throwIfFailed();
+
+Milvus::collections()->list(dbName: 'analytics');
+
+Milvus::databases()->drop('analytics')->dto()->throwIfFailed();
+```
+
+The default database cannot be dropped, and a database must have no collections before it can be dropped. Database
+list and describe responses expose `databases` and `database`; database IDs remain strings if they exceed PHP's
+integer range.
+
+### Filtering vector searches
+
+Use `filter` to restrict similarity search by scalar fields. `data` is an array of query vectors and `annsField` is
+the collection's vector field. Scalar fields must be part of the collection schema or accepted by its dynamic field.
+
+```php
+$results = Milvus::vector()->search(
+    collectionName: 'documents',
+    data: [[0.1, 0.2, 0.3 /* etc... */]],
+    annsField: 'vector',
+    filter: 'project_id == 10',
+    limit: 10,
+    outputFields: ['title', 'project_id'],
+)->dto()->throwIfFailed();
+```
+
+The same Milvus expression syntax works for `query()` and `delete()`, including expressions such as
+`id in [1, 2, 3]` and `status == "published"`.
+
+### Custom schemas and AutoID
+
+For explicit field control, pass a custom schema. Field options follow the Milvus REST schema unchanged:
+
+```php
+Milvus::collections()->create(
+    collectionName: 'documents',
+    schema: [
+        'autoID' => false,
+        'enableDynamicField' => false,
+        'fields' => [
+            ['fieldName' => 'id', 'dataType' => 'Int64', 'isPrimary' => true],
+            [
+                'fieldName' => 'vector',
+                'dataType' => 'FloatVector',
+                'elementTypeParams' => ['dim' => '1536'],
+            ],
+            ['fieldName' => 'project_id', 'dataType' => 'Int64'],
+        ],
+    ],
+);
+```
+
+With quick setup, set `autoID: true` and omit the primary key from inserted rows. The mutation DTO returns generated
+IDs through `$response->dto()->result->insertIds`.
+
 ### Milvus 3 features
 
 Milvus 3 can search using existing entity IDs instead of providing a vector directly:
@@ -230,24 +299,28 @@ Milvus can report API failures with HTTP status 200, so use `throwIfFailed()` wh
 `MilvusApiException` containing the Milvus error code. Malformed success payloads throw `InvalidResponseException`
 instead of silently returning partial data.
 
-The response types are `EmptyResponse` for create/drop, `CollectionListResponse`,
-`CollectionDescriptionResponse`, `MutationResponse` for insert/upsert/delete, `EntityResponse` for get/query, and
-`SearchResponse`. Dynamic entity fields and unknown future response fields remain available through `raw`.
+The response types are `EmptyResponse` for create/drop, `DatabaseListResponse`, `DatabaseDescriptionResponse`,
+`CollectionListResponse`, `CollectionDescriptionResponse`, `MutationResponse` for insert/upsert/delete,
+`EntityResponse` for get/query, and `SearchResponse`. Dynamic entity fields and unknown future response fields remain
+available through `raw`.
 
 ### Using with Zilliz Cloud
 
-If you are using the hosted version of Milvus, you will need to specify the following host and port along with your API
-token:
+Milvus v0.2 and newer automatically uses the `/v2/vectordb/...` endpoints; do not include an API version or operation
+path in the host. For Zilliz Cloud, pass the HTTPS cluster endpoint, port 443, and your API key as the token:
 
 ```php
 use HelgeSverre\Milvus\Milvus;
 
 $milvus = new Milvus(
-    token: 'db_randomstringhere:passwordhere',
-    host: 'https://in03-somerandomstring.api.gcp-us-west1.zillizcloud.com',
+    token: 'your-api-key',
+    host: 'https://in03-example.serverless.gcp-us-west1.cloud.zilliz.com',
     port: '443'
 );
 ```
+
+Existing applications that still send requests to `/v1/vector/...` should upgrade with
+`composer require helgesverre/milvus:^0.2`.
 
 ## Example: Semantic Search with Milvus and OpenAI Embeddings
 
@@ -393,16 +466,21 @@ The fast suite verifies request serialization, response decoding and edge cases,
 service-provider resolution, and architecture rules without contacting Milvus:
 
 ```bash
-composer test:unit
+just unit
 ```
 
-The integration suite requires Docker and performs a complete lifecycle against a real Milvus instance:
+The full test command starts Docker and runs both the unit suite and live database, collection, custom-schema, AutoID,
+filtered-search, error-envelope, and response-DTO scenarios:
+
+```bash
+just test
+```
+
+To run only the integration suite against a specific supported Milvus version:
 
 ```bash
 cp .env.example .env
-docker compose up --wait --wait-timeout 180
-composer test:integration
-docker compose down --volumes
+just integration 2.5.21
 ```
 
 Run the remaining release checks with:

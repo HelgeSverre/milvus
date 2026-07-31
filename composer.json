@@ -47,7 +47,7 @@
         "analyse": "vendor/bin/phpstan analyse",
         "test": "vendor/bin/pest --no-coverage",
         "test:unit": "vendor/bin/pest tests/Unit tests/ArchTest.php --no-coverage",
-        "test:integration": "vendor/bin/pest tests/Feature/CollectionTest.php tests/Feature/ResponseDtoIntegrationTest.php --no-coverage",
+        "test:integration": "vendor/bin/pest tests/Feature/ApiFailureIntegrationTest.php tests/Feature/CollectionSchemaTest.php tests/Feature/CollectionTest.php tests/Feature/DatabaseTest.php tests/Feature/ResponseDtoIntegrationTest.php --no-coverage",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/pint",
         "format:test": "vendor/bin/pint --test"

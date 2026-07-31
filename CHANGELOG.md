@@ -3,6 +3,21 @@
 All notable changes to this project are documented in this file. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Database create, list, describe, and drop operations through `Milvus::databases()`.
+- Typed database list, description, and property DTOs with int64-safe IDs and preserved future fields.
+- Live Docker coverage for database properties, custom schemas, AutoID, scalar-filtered search, and API failures across
+  Milvus 2.5, 2.6, and 3.0.
+- README guides for database management, filtered search, custom schemas, AutoID, and Zilliz REST v2 configuration.
+
+### Changed
+
+- `just test` runs both unit and Docker integration tests; use `just unit` for the fast suite.
+- Empty list request bodies retain JSON encoding errors while serializing as objects required by Milvus.
+
 ## [0.2.0] - 2026-07-31
 
 ### Added
@@ -31,4 +46,5 @@ All notable changes to this project are documented in this file. This project fo
 - Use the raw `username:password` Milvus token format and prefer an explicitly configured token.
 - Decode documented Milvus 2.5–3.0 response variations without losing unknown or dynamic fields.
 
+[Unreleased]: https://github.com/HelgeSverre/milvus/compare/v0.2.0...HEAD
 [0.2.0]: https://github.com/HelgeSverre/milvus/compare/v0.1.0...v0.2.0

@@ -5,6 +5,10 @@ use HelgeSverre\Milvus\Requests\CollectionOperations\CreateCollection;
 use HelgeSverre\Milvus\Requests\CollectionOperations\DescribeCollection;
 use HelgeSverre\Milvus\Requests\CollectionOperations\DropCollection;
 use HelgeSverre\Milvus\Requests\CollectionOperations\ListCollections;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\CreateDatabase;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\DescribeDatabase;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\DropDatabase;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\ListDatabases;
 use HelgeSverre\Milvus\Requests\VectorOperations\DeleteVector;
 use HelgeSverre\Milvus\Requests\VectorOperations\GetVector;
 use HelgeSverre\Milvus\Requests\VectorOperations\InsertVector;
@@ -20,6 +24,40 @@ it('matches the Milvus REST v2 request contract', function (Request $request, st
         ->and($request->resolveEndpoint())->toBe($endpoint)
         ->and($request->body()->all())->toBe($body);
 })->with([
+    'create database' => [
+        new CreateDatabase(
+            dbName: 'analytics',
+            properties: [
+                'database.replica.number' => 3,
+                'database.force.deny.writing' => false,
+                'timezone' => '',
+            ],
+        ),
+        '/v2/vectordb/databases/create',
+        [
+            'dbName' => 'analytics',
+            'properties' => [
+                'database.replica.number' => 3,
+                'database.force.deny.writing' => false,
+                'timezone' => '',
+            ],
+        ],
+    ],
+    'list databases' => [
+        new ListDatabases,
+        '/v2/vectordb/databases/list',
+        [],
+    ],
+    'describe database' => [
+        new DescribeDatabase('analytics'),
+        '/v2/vectordb/databases/describe',
+        ['dbName' => 'analytics'],
+    ],
+    'drop database' => [
+        new DropDatabase('analytics'),
+        '/v2/vectordb/databases/drop',
+        ['dbName' => 'analytics'],
+    ],
     'create collection (quick setup)' => [
         new CreateCollection(
             collectionName: 'documents',
@@ -198,6 +236,13 @@ it('matches the Milvus REST v2 request contract', function (Request $request, st
             'exprParams' => ['id' => 1],
         ],
     ],
+]);
+
+it('encodes empty list request bodies as JSON objects', function (Request $request) {
+    expect((string) $request->body())->toBe('{}');
+})->with([
+    'databases' => new ListDatabases,
+    'collections' => new ListCollections,
 ]);
 
 it('supports authenticated and unauthenticated Milvus servers', function () {

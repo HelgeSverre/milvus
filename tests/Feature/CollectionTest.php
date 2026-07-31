@@ -29,9 +29,9 @@ it('supports the configured Milvus collection and vector lifecycle', function ()
         $insert = $milvus->vector()->insert(
             collectionName: $collectionName,
             data: [
-                ['id' => 1, 'vector' => createTestVector(0.1), 'title' => 'first'],
-                ['id' => 2, 'vector' => createTestVector(0.2), 'title' => 'second'],
-                ['id' => 3, 'vector' => createTestVector(0.3), 'title' => 'third'],
+                ['id' => 1, 'vector' => createTestVector(0.1), 'title' => 'first', 'project_id' => 10],
+                ['id' => 2, 'vector' => createTestVector(0.2), 'title' => 'second', 'project_id' => 20],
+                ['id' => 3, 'vector' => createTestVector(0.3), 'title' => 'third', 'project_id' => 10],
             ],
         );
 
@@ -58,11 +58,31 @@ it('supports the configured Milvus collection and vector lifecycle', function ()
             outputFields: ['title'],
             consistencyLevel: 'Strong',
         );
+        $filteredSearch = $milvus->vector()->search(
+            collectionName: $collectionName,
+            data: [createTestVector(0.2)],
+            annsField: 'vector',
+            filter: 'project_id == 10',
+            limit: 3,
+            outputFields: ['project_id'],
+            consistencyLevel: 'Strong',
+        );
+        $filteredRows = $filteredSearch->collect('data');
+        $filteredIds = $filteredRows
+            ->pluck('id')
+            ->map(static fn (int|string $id): string => (string) $id)
+            ->sort()
+            ->values()
+            ->all();
 
         expect($get->collect('data'))->toHaveCount(2)
             ->and($query->collect('data'))->toHaveCount(3)
             ->and($search->json('data.0.title'))->toBe('first')
-            ->and($search->json('data.0.distance'))->toEqual(0);
+            ->and($search->json('data.0.distance'))->toEqual(0)
+            ->and($filteredSearch->json('code'))->toBe(0)
+            ->and($filteredRows)->toHaveCount(2)
+            ->and($filteredRows->pluck('project_id')->all())->each->toBe(10)
+            ->and($filteredIds)->toBe(['1', '3']);
 
         if (str_starts_with((string) getenv('MILVUS_VERSION'), '3.')) {
             $searchById = $milvus->vector()->search(

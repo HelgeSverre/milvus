@@ -4,6 +4,7 @@ use HelgeSverre\Milvus\Facades\Milvus as MilvusFacade;
 use HelgeSverre\Milvus\Milvus;
 use HelgeSverre\Milvus\Requests\VectorOperations\SearchVector;
 use HelgeSverre\Milvus\Resource\CollectionOperations;
+use HelgeSverre\Milvus\Resource\DatabaseOperations;
 use HelgeSverre\Milvus\Resource\VectorOperations;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
@@ -13,6 +14,7 @@ it('builds the configured base URL and exposes its resources', function () {
 
     expect($milvus->resolveBaseUrl())->toBe('https://milvus.example.com:443')
         ->and($milvus->collections())->toBeInstanceOf(CollectionOperations::class)
+        ->and($milvus->databases())->toBeInstanceOf(DatabaseOperations::class)
         ->and($milvus->vector())->toBeInstanceOf(VectorOperations::class);
 });
 

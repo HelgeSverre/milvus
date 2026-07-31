@@ -2,6 +2,8 @@
 
 use HelgeSverre\Milvus\Data\Response\CollectionDescriptionResponse;
 use HelgeSverre\Milvus\Data\Response\CollectionListResponse;
+use HelgeSverre\Milvus\Data\Response\DatabaseDescriptionResponse;
+use HelgeSverre\Milvus\Data\Response\DatabaseListResponse;
 use HelgeSverre\Milvus\Data\Response\EmptyResponse;
 use HelgeSverre\Milvus\Data\Response\EntityResponse;
 use HelgeSverre\Milvus\Data\Response\MutationResponse;
@@ -11,6 +13,10 @@ use HelgeSverre\Milvus\Requests\CollectionOperations\CreateCollection;
 use HelgeSverre\Milvus\Requests\CollectionOperations\DescribeCollection;
 use HelgeSverre\Milvus\Requests\CollectionOperations\DropCollection;
 use HelgeSverre\Milvus\Requests\CollectionOperations\ListCollections;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\CreateDatabase;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\DescribeDatabase;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\DropDatabase;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\ListDatabases;
 use HelgeSverre\Milvus\Requests\VectorOperations\DeleteVector;
 use HelgeSverre\Milvus\Requests\VectorOperations\GetVector;
 use HelgeSverre\Milvus\Requests\VectorOperations\InsertVector;
@@ -49,6 +55,71 @@ it('preserves the public resource contract through request construction and resp
     );
     $mockClient->assertSentCount(1);
 })->with([
+    'list databases' => [
+        fn (Milvus $milvus) => $milvus->databases()->list(),
+        ListDatabases::class,
+        [],
+        ['code' => 0, 'data' => ['default', 'analytics']],
+        DatabaseListResponse::class,
+        fn (DatabaseListResponse $dto) => $dto->databases,
+        ['default', 'analytics'],
+    ],
+    'create database' => [
+        fn (Milvus $milvus) => $milvus->databases()->create(
+            dbName: 'analytics',
+            properties: [
+                'database.replica.number' => 3,
+                'database.force.deny.writing' => false,
+            ],
+        ),
+        CreateDatabase::class,
+        [
+            'dbName' => 'analytics',
+            'properties' => [
+                'database.replica.number' => 3,
+                'database.force.deny.writing' => false,
+            ],
+        ],
+        ['code' => 0, 'data' => []],
+        EmptyResponse::class,
+        fn (EmptyResponse $dto) => $dto->data,
+        [],
+    ],
+    'describe database' => [
+        fn (Milvus $milvus) => $milvus->databases()->describe('analytics'),
+        DescribeDatabase::class,
+        ['dbName' => 'analytics'],
+        [
+            'code' => 0,
+            'data' => [
+                'dbName' => 'analytics',
+                'dbID' => '18446744073709551615',
+                'properties' => [[
+                    'key' => 'timezone',
+                    'value' => 'UTC',
+                    'futurePropertyField' => true,
+                ]],
+                'futureDatabaseField' => 'retained',
+            ],
+        ],
+        DatabaseDescriptionResponse::class,
+        fn (DatabaseDescriptionResponse $dto) => [
+            $dto->database?->dbName,
+            $dto->database?->dbId,
+            $dto->database?->properties[0]->value,
+            $dto->database?->raw['futureDatabaseField'],
+        ],
+        ['analytics', '18446744073709551615', 'UTC', 'retained'],
+    ],
+    'drop database' => [
+        fn (Milvus $milvus) => $milvus->databases()->drop('analytics'),
+        DropDatabase::class,
+        ['dbName' => 'analytics'],
+        ['code' => 0, 'data' => []],
+        EmptyResponse::class,
+        fn (EmptyResponse $dto) => $dto->data,
+        [],
+    ],
     'list collections' => [
         fn (Milvus $milvus) => $milvus->collections()->list('analytics'),
         ListCollections::class,

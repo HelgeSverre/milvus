@@ -7,9 +7,13 @@ default:
 install:
     composer install --prefer-dist --no-interaction --no-progress
 
-# Run fast tests.
+# Run all tests.
 [group('test')]
-test:
+test: unit integration
+
+# Run unit tests.
+[group('test')]
+unit:
     composer test:unit
 
 # Run test coverage.
@@ -51,7 +55,7 @@ audit:
 
 # Run fast checks.
 [group('quality')]
-check: validate audit format-check analyse test
+check: validate audit format-check analyse unit
 
 # Start Milvus.
 [group('docker')]

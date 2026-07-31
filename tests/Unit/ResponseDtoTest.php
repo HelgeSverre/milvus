@@ -2,6 +2,8 @@
 
 use HelgeSverre\Milvus\Data\Response\CollectionDescriptionResponse;
 use HelgeSverre\Milvus\Data\Response\CollectionListResponse;
+use HelgeSverre\Milvus\Data\Response\DatabaseDescriptionResponse;
+use HelgeSverre\Milvus\Data\Response\DatabaseListResponse;
 use HelgeSverre\Milvus\Data\Response\EmptyResponse;
 use HelgeSverre\Milvus\Data\Response\EntityResponse;
 use HelgeSverre\Milvus\Data\Response\MilvusResponse;
@@ -14,6 +16,10 @@ use HelgeSverre\Milvus\Requests\CollectionOperations\CreateCollection;
 use HelgeSverre\Milvus\Requests\CollectionOperations\DescribeCollection;
 use HelgeSverre\Milvus\Requests\CollectionOperations\DropCollection;
 use HelgeSverre\Milvus\Requests\CollectionOperations\ListCollections;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\CreateDatabase;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\DescribeDatabase;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\DropDatabase;
+use HelgeSverre\Milvus\Requests\DatabaseOperations\ListDatabases;
 use HelgeSverre\Milvus\Requests\MilvusRequest;
 use HelgeSverre\Milvus\Requests\VectorOperations\DeleteVector;
 use HelgeSverre\Milvus\Requests\VectorOperations\GetVector;
@@ -44,6 +50,26 @@ it('maps every request to its spec-defined response DTO', function (
 ) {
     expect(decodeMilvusResponse($request, $body))->toBeInstanceOf($expectedDto);
 })->with([
+    'create database' => [
+        new CreateDatabase('analytics'),
+        ['code' => 0, 'data' => []],
+        EmptyResponse::class,
+    ],
+    'drop database' => [
+        new DropDatabase('analytics'),
+        ['code' => 0, 'data' => []],
+        EmptyResponse::class,
+    ],
+    'list databases' => [
+        new ListDatabases,
+        ['code' => 0, 'data' => []],
+        DatabaseListResponse::class,
+    ],
+    'describe database' => [
+        new DescribeDatabase('analytics'),
+        ['code' => 0, 'data' => ['dbName' => 'analytics']],
+        DatabaseDescriptionResponse::class,
+    ],
     'create collection' => [
         new CreateCollection('documents'),
         ['code' => 0, 'data' => []],
@@ -95,6 +121,27 @@ it('maps every request to its spec-defined response DTO', function (
         SearchResponse::class,
     ],
 ]);
+
+it('decodes database lists and descriptions without losing int64 or future fields', function () {
+    $list = decodeMilvusResponse(new ListDatabases, [
+        'code' => 0,
+        'data' => ['default', 'analytics'],
+    ]);
+    $describe = decodeMilvusResponse(
+        new DescribeDatabase('analytics'),
+        '{"code":0,"data":{"dbName":"analytics","dbID":18446744073709551615,"properties":[{"key":"timezone","value":"UTC","future":true}],"futureDatabaseField":{"enabled":true}}}',
+    );
+
+    expect($list)->toBeInstanceOf(DatabaseListResponse::class)
+        ->and($list->databases)->toBe(['default', 'analytics'])
+        ->and($describe)->toBeInstanceOf(DatabaseDescriptionResponse::class)
+        ->and($describe->database->dbName)->toBe('analytics')
+        ->and($describe->database->dbId)->toBe('18446744073709551615')
+        ->and($describe->database->properties[0]->key)->toBe('timezone')
+        ->and($describe->database->properties[0]->value)->toBe('UTC')
+        ->and($describe->database->properties[0]->raw['future'])->toBeTrue()
+        ->and($describe->database->raw['futureDatabaseField'])->toBe(['enabled' => true]);
+});
 
 it('decodes collection lists and operation metadata', function () {
     $dto = decodeMilvusResponse(new ListCollections, [
@@ -372,6 +419,11 @@ it('does not parse endpoint data from failed envelopes', function (MilvusRequest
         new DescribeCollection('documents'),
         CollectionDescriptionResponse::class,
     ],
+    'database list' => [new ListDatabases, DatabaseListResponse::class],
+    'database description' => [
+        new DescribeDatabase('analytics'),
+        DatabaseDescriptionResponse::class,
+    ],
     'mutation response' => [new InsertVector('documents', []), MutationResponse::class],
     'entity response' => [new QueryVector('documents'), EntityResponse::class],
     'search response' => [
@@ -439,6 +491,47 @@ it('rejects invalid response shapes at the exact failing path', function (
         new ListCollections,
         ['code' => 0, 'data' => ['documents', 2]],
         '"data.1"',
+    ],
+    'database list must be a list' => [
+        new ListDatabases,
+        ['code' => 0, 'data' => ['name' => 'analytics']],
+        '"data"',
+    ],
+    'database list entries must be strings' => [
+        new ListDatabases,
+        ['code' => 0, 'data' => ['default', 2]],
+        '"data.1"',
+    ],
+    'database name is required' => [
+        new DescribeDatabase('analytics'),
+        ['code' => 0, 'data' => ['properties' => []]],
+        '"data.dbName"',
+    ],
+    'database IDs must be integer or string' => [
+        new DescribeDatabase('analytics'),
+        ['code' => 0, 'data' => ['dbName' => 'analytics', 'dbID' => false]],
+        '"data.dbID"',
+    ],
+    'database property entries must be objects' => [
+        new DescribeDatabase('analytics'),
+        ['code' => 0, 'data' => ['dbName' => 'analytics', 'properties' => ['bad']]],
+        '"data.properties.0"',
+    ],
+    'database property keys are required' => [
+        new DescribeDatabase('analytics'),
+        ['code' => 0, 'data' => [
+            'dbName' => 'analytics',
+            'properties' => [['value' => 'UTC']],
+        ]],
+        '"data.properties.0.key"',
+    ],
+    'database property values must be strings' => [
+        new DescribeDatabase('analytics'),
+        ['code' => 0, 'data' => [
+            'dbName' => 'analytics',
+            'properties' => [['key' => 'database.replica.number', 'value' => 3]],
+        ]],
+        '"data.properties.0.value"',
     ],
     'collection name is required' => [
         new DescribeCollection('documents'),

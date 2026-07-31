@@ -1,44 +1,42 @@
 <?php
 
-namespace HelgeSverre\Milvus\Requests\CollectionOperations;
+namespace HelgeSverre\Milvus\Requests\DatabaseOperations;
 
-use HelgeSverre\Milvus\Data\Response\CollectionListResponse;
+use HelgeSverre\Milvus\Data\Response\EmptyResponse;
 use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
- * List Collections
- *
- * Lists collections in a cluster.
+ * Creates a database in the current Milvus instance.
  */
-class ListCollections extends MilvusRequest implements HasBody
+class CreateDatabase extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
     protected Method $method = Method::POST;
 
+    public function __construct(
+        protected string $dbName,
+        protected ?array $properties = null,
+    ) {}
+
     public function resolveEndpoint(): string
     {
-        return '/v2/vectordb/collections/list';
+        return '/v2/vectordb/databases/create';
     }
 
     protected function responseDto(): string
     {
-        return CollectionListResponse::class;
-    }
-
-    public function __construct(
-        protected ?string $dbName = null,
-    ) {
-        $this->body()->setJsonFlags(JSON_THROW_ON_ERROR | JSON_FORCE_OBJECT);
+        return EmptyResponse::class;
     }
 
     protected function defaultBody(): array
     {
         return array_filter([
             'dbName' => $this->dbName,
+            'properties' => $this->properties,
         ], static fn (mixed $value): bool => $value !== null);
     }
 }

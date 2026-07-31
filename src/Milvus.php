@@ -3,6 +3,7 @@
 namespace HelgeSverre\Milvus;
 
 use HelgeSverre\Milvus\Resource\CollectionOperations;
+use HelgeSverre\Milvus\Resource\DatabaseOperations;
 use HelgeSverre\Milvus\Resource\VectorOperations;
 use Saloon\Http\Auth\TokenAuthenticator;
 use Saloon\Http\Connector;
@@ -35,6 +36,11 @@ class Milvus extends Connector
     public function collections(): CollectionOperations
     {
         return new CollectionOperations($this);
+    }
+
+    public function databases(): DatabaseOperations
+    {
+        return new DatabaseOperations($this);
     }
 
     public function vector(): VectorOperations
