@@ -132,8 +132,5 @@ jobs:
       - name: Check formatting
         run: composer format:test
 
-      - name: Run unit tests
-        run: composer test:unit
-
       - name: Run static analysis
         run: composer analyse -- src

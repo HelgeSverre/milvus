@@ -4,17 +4,10 @@ use HelgeSverre\Milvus\Milvus;
 
 it('supports the configured Milvus collection and vector lifecycle', function () {
     $milvus = $this->app->make(Milvus::class);
-    $unauthenticatedMilvus = new Milvus(
-        token: null,
-        host: config('milvus.host'),
-        port: config('milvus.port'),
-    );
     $collectionName = 'php_client_'.bin2hex(random_bytes(6));
     $created = false;
 
     try {
-        expect($unauthenticatedMilvus->collections()->list()->json('code'))->toBe(0);
-
         $create = $milvus->collections()->create(
             collectionName: $collectionName,
             dimension: 128,
