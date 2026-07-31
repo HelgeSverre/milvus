@@ -425,6 +425,11 @@ it('rejects invalid response shapes at the exact failing path', function (
         ['code' => 0],
         '"data"',
     ],
+    'response data must be an array or object' => [
+        new ListCollections,
+        ['code' => 0, 'data' => 'documents'],
+        '"data"',
+    ],
     'collection list must be a list' => [
         new ListCollections,
         ['code' => 0, 'data' => ['name' => 'documents']],
