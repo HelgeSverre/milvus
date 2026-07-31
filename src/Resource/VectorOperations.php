@@ -15,15 +15,19 @@ class VectorOperations extends BaseResource
 {
     public function delete(
         string $collectionName,
-        string $filter,
+        ?string $filter = null,
         ?string $dbName = null,
         ?string $partitionName = null,
+        int|string|null $id = null,
+        ?array $exprParams = null,
     ): Response {
         return $this->connector->send(new DeleteVector(
             collectionName: $collectionName,
             filter: $filter,
             dbName: $dbName,
             partitionName: $partitionName,
+            id: $id,
+            exprParams: $exprParams,
         ));
     }
 
@@ -32,18 +36,20 @@ class VectorOperations extends BaseResource
         array $data,
         ?string $dbName = null,
         ?string $partitionName = null,
+        ?bool $partialUpdate = null,
     ): Response {
         return $this->connector->send(new InsertVector(
             collectionName: $collectionName,
             data: $data,
             dbName: $dbName,
             partitionName: $partitionName,
+            partialUpdate: $partialUpdate,
         ));
     }
 
     public function search(
         string $collectionName,
-        array $data,
+        ?array $data,
         string $annsField,
         ?string $filter = null,
         ?int $limit = null,
@@ -55,6 +61,11 @@ class VectorOperations extends BaseResource
         ?array $searchParams = null,
         ?string $dbName = null,
         ?array $partitionNames = null,
+        ?string $consistencyLevel = null,
+        ?array $exprParams = null,
+        ?array $functionScore = null,
+        ?array $params = null,
+        ?array $ids = null,
     ): Response {
         return $this->connector->send(new SearchVector(
             collectionName: $collectionName,
@@ -70,17 +81,24 @@ class VectorOperations extends BaseResource
             searchParams: $searchParams,
             dbName: $dbName,
             partitionNames: $partitionNames,
+            consistencyLevel: $consistencyLevel,
+            exprParams: $exprParams,
+            functionScore: $functionScore,
+            params: $params,
+            ids: $ids,
         ));
     }
 
     public function query(
         string $collectionName,
-        string $filter,
+        ?string $filter = null,
         ?int $limit = null,
         ?int $offset = null,
         ?array $outputFields = null,
         ?string $dbName = null,
         ?array $partitionNames = null,
+        ?array $exprParams = null,
+        ?string $consistencyLevel = null,
     ): Response {
         return $this->connector->send(new QueryVector(
             collectionName: $collectionName,
@@ -90,6 +108,8 @@ class VectorOperations extends BaseResource
             outputFields: $outputFields,
             dbName: $dbName,
             partitionNames: $partitionNames,
+            exprParams: $exprParams,
+            consistencyLevel: $consistencyLevel,
         ));
     }
 
@@ -99,6 +119,8 @@ class VectorOperations extends BaseResource
         ?array $outputFields = null,
         ?string $dbName = null,
         ?array $partitionNames = null,
+        ?string $consistencyLevel = null,
+        ?string $partitionName = null,
     ): Response {
         return $this->connector->send(new GetVector(
             id: $id,
@@ -106,6 +128,8 @@ class VectorOperations extends BaseResource
             outputFields: $outputFields,
             dbName: $dbName,
             partitionNames: $partitionNames,
+            consistencyLevel: $consistencyLevel,
+            partitionName: $partitionName,
         ));
     }
 
@@ -114,12 +138,14 @@ class VectorOperations extends BaseResource
         array $data,
         ?string $dbName = null,
         ?string $partitionName = null,
+        ?bool $partialUpdate = null,
     ): Response {
         return $this->connector->send(new UpsertVector(
             collectionName: $collectionName,
             data: $data,
             dbName: $dbName,
             partitionName: $partitionName,
+            partialUpdate: $partialUpdate,
         ));
     }
 }

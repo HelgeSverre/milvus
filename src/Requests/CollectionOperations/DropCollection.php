@@ -27,14 +27,13 @@ class DropCollection extends Request implements HasBody
     public function __construct(
         protected string $collectionName,
         protected ?string $dbName = null,
-    ) {
-    }
+    ) {}
 
     public function defaultBody(): array
     {
         return array_filter([
             'collectionName' => $this->collectionName,
             'dbName' => $this->dbName,
-        ]);
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

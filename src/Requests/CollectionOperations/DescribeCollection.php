@@ -24,19 +24,18 @@ class DescribeCollection extends Request implements HasBody
     }
 
     /**
-     * @param  string  $collectionName The name of the collection to describe.
+     * @param  string  $collectionName  The name of the collection to describe.
      */
     public function __construct(
         protected string $collectionName,
         protected ?string $dbName = null,
-    ) {
-    }
+    ) {}
 
     public function defaultBody(): array
     {
         return array_filter([
             'collectionName' => $this->collectionName,
             'dbName' => $this->dbName,
-        ]);
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

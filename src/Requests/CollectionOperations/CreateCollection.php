@@ -25,15 +25,18 @@ class CreateCollection extends Request implements HasBody
 
     public function __construct(
         protected string $collectionName,
-        protected int $dimension,
+        protected ?int $dimension = null,
         protected ?string $dbName = null,
         protected ?string $metricType = null,
         protected ?string $idType = null,
-        protected ?string $autoID = null,
+        protected ?bool $autoID = null,
         protected ?string $primaryFieldName = null,
         protected ?string $vectorFieldName = null,
-    ) {
-    }
+        protected ?array $schema = null,
+        protected ?array $indexParams = null,
+        protected ?array $params = null,
+        protected ?string $description = null,
+    ) {}
 
     public function defaultBody(): array
     {
@@ -46,6 +49,10 @@ class CreateCollection extends Request implements HasBody
             'autoID' => $this->autoID,
             'primaryFieldName' => $this->primaryFieldName,
             'vectorFieldName' => $this->vectorFieldName,
-        ]);
+            'schema' => $this->schema,
+            'indexParams' => $this->indexParams,
+            'params' => $this->params,
+            'description' => $this->description,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

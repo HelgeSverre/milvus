@@ -28,8 +28,8 @@ class InsertVector extends Request implements HasBody
         protected array $data,
         protected ?string $dbName = null,
         protected ?string $partitionName = null,
-    ) {
-    }
+        protected ?bool $partialUpdate = null,
+    ) {}
 
     protected function defaultBody(): array
     {
@@ -38,6 +38,7 @@ class InsertVector extends Request implements HasBody
             'collectionName' => $this->collectionName,
             'dbName' => $this->dbName,
             'partitionName' => $this->partitionName,
-        ]);
+            'partialUpdate' => $this->partialUpdate,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

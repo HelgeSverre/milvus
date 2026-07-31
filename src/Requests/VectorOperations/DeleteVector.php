@@ -25,11 +25,12 @@ class DeleteVector extends Request implements HasBody
 
     public function __construct(
         protected string $collectionName,
-        protected string $filter,
+        protected ?string $filter = null,
         protected ?string $dbName = null,
         protected ?string $partitionName = null,
-    ) {
-    }
+        protected int|string|null $id = null,
+        protected ?array $exprParams = null,
+    ) {}
 
     protected function defaultBody(): array
     {
@@ -38,6 +39,8 @@ class DeleteVector extends Request implements HasBody
             'filter' => $this->filter,
             'dbName' => $this->dbName,
             'partitionName' => $this->partitionName,
-        ]);
+            'id' => $this->id,
+            'exprParams' => $this->exprParams,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

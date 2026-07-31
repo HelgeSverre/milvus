@@ -33,6 +33,6 @@ class ListCollections extends Request implements HasBody
     {
         return array_filter([
             'dbName' => $this->dbName,
-        ]);
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

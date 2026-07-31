@@ -25,14 +25,15 @@ class QueryVector extends Request implements HasBody
 
     public function __construct(
         protected string $collectionName,
-        protected string $filter,
+        protected ?string $filter = null,
         protected ?int $limit = null,
         protected ?int $offset = null,
         protected ?array $outputFields = null,
         protected ?string $dbName = null,
         protected ?array $partitionNames = null,
-    ) {
-    }
+        protected ?array $exprParams = null,
+        protected ?string $consistencyLevel = null,
+    ) {}
 
     protected function defaultBody(): array
     {
@@ -44,6 +45,8 @@ class QueryVector extends Request implements HasBody
             'outputFields' => $this->outputFields,
             'dbName' => $this->dbName,
             'partitionNames' => $this->partitionNames,
-        ]);
+            'exprParams' => $this->exprParams,
+            'consistencyLevel' => $this->consistencyLevel,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

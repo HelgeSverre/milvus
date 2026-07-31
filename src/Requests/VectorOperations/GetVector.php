@@ -29,8 +29,9 @@ class GetVector extends Request implements HasBody
         protected ?array $outputFields = null,
         protected ?string $dbName = null,
         protected ?array $partitionNames = null,
-    ) {
-    }
+        protected ?string $consistencyLevel = null,
+        protected ?string $partitionName = null,
+    ) {}
 
     protected function defaultBody(): array
     {
@@ -40,6 +41,8 @@ class GetVector extends Request implements HasBody
             'outputFields' => $this->outputFields,
             'dbName' => $this->dbName,
             'partitionNames' => $this->partitionNames,
-        ]);
+            'consistencyLevel' => $this->consistencyLevel,
+            'partitionName' => $this->partitionName,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

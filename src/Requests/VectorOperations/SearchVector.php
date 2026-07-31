@@ -25,7 +25,7 @@ class SearchVector extends Request implements HasBody
 
     public function __construct(
         protected string $collectionName,
-        protected array $data,
+        protected ?array $data,
         protected string $annsField,
         protected ?string $filter = null,
         protected ?int $limit = null,
@@ -37,8 +37,12 @@ class SearchVector extends Request implements HasBody
         protected ?array $searchParams = null,
         protected ?string $dbName = null,
         protected ?array $partitionNames = null,
-    ) {
-    }
+        protected ?string $consistencyLevel = null,
+        protected ?array $exprParams = null,
+        protected ?array $functionScore = null,
+        protected ?array $params = null,
+        protected ?array $ids = null,
+    ) {}
 
     protected function defaultBody(): array
     {
@@ -53,11 +57,14 @@ class SearchVector extends Request implements HasBody
             'groupSize' => $this->groupSize,
             'strictGroupSize' => $this->strictGroupSize,
             'outputFields' => $this->outputFields,
-
-            // TODO: restful api only supports "radius" and "range_filter at this time.
             'searchParams' => $this->searchParams,
             'dbName' => $this->dbName,
             'partitionNames' => $this->partitionNames,
-        ]);
+            'consistencyLevel' => $this->consistencyLevel,
+            'exprParams' => $this->exprParams,
+            'functionScore' => $this->functionScore,
+            'params' => $this->params,
+            'ids' => $this->ids,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }
