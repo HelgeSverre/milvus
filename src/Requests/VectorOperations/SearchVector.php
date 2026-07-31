@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\VectorOperations;
 
+use HelgeSverre\Milvus\Data\Response\SearchResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Conducts a similarity search in a collection.
  */
-class SearchVector extends Request implements HasBody
+class SearchVector extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -21,6 +22,11 @@ class SearchVector extends Request implements HasBody
     public function resolveEndpoint(): string
     {
         return '/v2/vectordb/entities/search';
+    }
+
+    protected function responseDto(): string
+    {
+        return SearchResponse::class;
     }
 
     public function __construct(

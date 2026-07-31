@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\VectorOperations;
 
+use HelgeSverre\Milvus\Data\Response\MutationResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Inserts one or more entities into a collection.
  */
-class UpsertVector extends Request implements HasBody
+class UpsertVector extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -21,6 +22,11 @@ class UpsertVector extends Request implements HasBody
     public function resolveEndpoint(): string
     {
         return '/v2/vectordb/entities/upsert';
+    }
+
+    protected function responseDto(): string
+    {
+        return MutationResponse::class;
     }
 
     public function __construct(

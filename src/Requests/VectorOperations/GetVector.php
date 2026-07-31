@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\VectorOperations;
 
+use HelgeSverre\Milvus\Data\Response\EntityResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Gets entities by the specified IDs.
  */
-class GetVector extends Request implements HasBody
+class GetVector extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -21,6 +22,11 @@ class GetVector extends Request implements HasBody
     public function resolveEndpoint(): string
     {
         return '/v2/vectordb/entities/get';
+    }
+
+    protected function responseDto(): string
+    {
+        return EntityResponse::class;
     }
 
     public function __construct(

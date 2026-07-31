@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\CollectionOperations;
 
+use HelgeSverre\Milvus\Data\Response\EmptyResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Creates a collection in a cluster.
  */
-class CreateCollection extends Request implements HasBody
+class CreateCollection extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -21,6 +22,11 @@ class CreateCollection extends Request implements HasBody
     public function resolveEndpoint(): string
     {
         return '/v2/vectordb/collections/create';
+    }
+
+    protected function responseDto(): string
+    {
+        return EmptyResponse::class;
     }
 
     public function __construct(

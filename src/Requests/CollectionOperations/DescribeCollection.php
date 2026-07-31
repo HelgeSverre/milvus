@@ -2,9 +2,10 @@
 
 namespace HelgeSverre\Milvus\Requests\CollectionOperations;
 
+use HelgeSverre\Milvus\Data\Response\CollectionDescriptionResponse;
+use HelgeSverre\Milvus\Requests\MilvusRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
 /**
@@ -12,7 +13,7 @@ use Saloon\Traits\Body\HasJsonBody;
  *
  * Describes the details of a collection.
  */
-class DescribeCollection extends Request implements HasBody
+class DescribeCollection extends MilvusRequest implements HasBody
 {
     use HasJsonBody;
 
@@ -21,6 +22,11 @@ class DescribeCollection extends Request implements HasBody
     public function resolveEndpoint(): string
     {
         return '/v2/vectordb/collections/describe';
+    }
+
+    protected function responseDto(): string
+    {
+        return CollectionDescriptionResponse::class;
     }
 
     /**
