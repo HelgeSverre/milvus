@@ -5,6 +5,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/helgesverre/milvus.svg?style=flat-square)](https://packagist.org/packages/helgesverre/milvus)
 [![Total Downloads](https://img.shields.io/packagist/dt/helgesverre/milvus.svg?style=flat-square)](https://packagist.org/packages/helgesverre/milvus)
 [![CI](https://github.com/HelgeSverre/milvus/actions/workflows/main.yml/badge.svg)](https://github.com/HelgeSverre/milvus/actions/workflows/main.yml)
+[![Code Coverage](https://codecov.io/gh/HelgeSverre/milvus/branch/main/graph/badge.svg)](https://codecov.io/gh/HelgeSverre/milvus)
 
 [Milvus](https://github.com/milvus-io/milvus) is an open-source vector database that is highly flexible, reliable, and
 blazing fast. It supports adding,
