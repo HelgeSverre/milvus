@@ -1,55 +1,137 @@
-name: CI Pipeline
+name: CI
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
-  php_tests:
-    name: PHP Tests
+  integration:
+    name: PHP ${{ matrix.php-version }} / Milvus ${{ matrix.milvus-version }}
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_VOLUME_DIRECTORY: ${{ runner.temp }}/milvus
+      MILVUS_IMAGE: milvusdb/milvus:v${{ matrix.milvus-version }}
+      MILVUS_VERSION: ${{ matrix.milvus-version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php-version: '8.3'
+            milvus-version: '2.5.21'
+          - php-version: '8.4'
+            milvus-version: '2.6.21'
+          - php-version: '8.5'
+            milvus-version: '3.0.0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Start Milvus
+        run: docker compose up --wait --wait-timeout 180
+
+      - name: Run integration tests
+        run: composer test:integration
+
+      - name: Show container logs
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop Milvus
+        if: always()
+        run: docker compose down --volumes
+
+  compatibility:
+    name: PHP ${{ matrix.php-version }} / Laravel ${{ matrix.laravel-version }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        php-version: [8.2, 8.3]
+        include:
+          - php-version: '8.3'
+            laravel-version: '10'
+            testbench-version: '^8.37'
+            pest-version: '^2.36'
+            larastan-version: '^2.9'
+            composer-policy-flag: '--no-blocking'
+          - php-version: '8.3'
+            laravel-version: '11'
+            testbench-version: '^9.17'
+            pest-version: '^3.8'
+            larastan-version: '^3.10'
+            composer-policy-flag: '--no-blocking'
+          - php-version: '8.4'
+            laravel-version: '12'
+            testbench-version: '^10.11'
+            pest-version: '^3.8'
+            larastan-version: '^3.10'
+            composer-policy-flag: ''
+          - php-version: '8.5'
+            laravel-version: '13'
+            testbench-version: '^11.1'
+            pest-version: '^4.7'
+            larastan-version: '^3.10'
+            composer-policy-flag: ''
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+
+      - name: Install Laravel ${{ matrix.laravel-version }} dependencies
+        run: >
+          composer update
+          --with="orchestra/testbench:${{ matrix.testbench-version }}"
+          --with="pestphp/pest:${{ matrix.pest-version }}"
+          --with="larastan/larastan:${{ matrix.larastan-version }}"
+          ${{ matrix.composer-policy-flag }}
+          --prefer-dist
+          --no-interaction
+          --no-progress
+
+      - name: Run package tests
+        run: composer test:unit
+
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
-          extensions: mbstring, pdo, dom
-          ini-values: memory_limit=-1
+          php-version: 8.5
           coverage: none
 
-      - name: Run docker-compose
-        uses: hoverkraft-tech/compose-action@v2.0.1
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
 
-      - name: Install Dependencies
-        run: composer install --no-progress --no-suggest
+      - name: Validate package
+        run: composer validate --strict
 
-      - name: Run Tests
-        run: composer run test
+      - name: Audit dependencies
+        run: composer audit
 
-  php_static_analysis:
-    name: PHP Static Analysis
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-version: [8.3]
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Check formatting
+        run: composer format:test
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-version }}
-          extensions: mbstring, pdo, dom
-          ini-values: memory_limit=-1
-          coverage: none
+      - name: Run unit tests
+        run: composer test:unit
 
-      - name: Install Dependencies
-        run: composer install --no-progress --no-suggest
-
-      - name: Run Static Analysis
-        run: composer run analyse src
+      - name: Run static analysis
+        run: composer analyse -- src

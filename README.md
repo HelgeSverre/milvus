@@ -9,22 +9,34 @@
 blazing fast. It supports adding,
 deleting, updating, and near real-time search of vectors on a trillion-byte scale.
 
-This package is an API Client for the Milvus v2.3.3 Restful API, and is built on the [Saloon](https://docs.saloon.dev/)
-package.
+This package is a PHP client for the stable Milvus REST v2 endpoints shared by Milvus 2.5 through 3.0. It is tested
+against Milvus 2.5.21, 2.6.21, and 3.0.0, and built on [Saloon](https://docs.saloon.dev/).
 
-Documentation about the Restful API is available on
-the [Milvus website](https://milvus.io/api-reference/restful/v2.3.x/About.md), and an OpenAPI spec is
-available [here](https://raw.githubusercontent.com/milvus-io/web-content/master/API_Reference/milvus-restful/v2.3.x/Restful%20API.openapi.json).
+See the [Milvus REST API documentation](https://milvus.io/api-reference/restful/v3.0.x/About.md) and the official
+[collection](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/05-collection-operations-v2.json)
+and [vector](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/04-vector-operations-v2.json)
+OpenAPI definitions.
+
+The supported runtime matrix is PHP 8.3–8.5 and Laravel 12–13. Laravel 10 and 11 remain covered by compatibility
+tests for existing applications, but both framework versions are end-of-life and should not be used for new
+installations. Their CI jobs use Composer's command-scoped `--no-blocking` option because current Composer versions
+block their affected upstream framework releases.
+
+| Laravel Version | Tested PHP | Status |
+|-----------------|------------|--------|
+| 13.x            | 8.5        | Supported |
+| 12.x            | 8.4        | Supported |
+| 11.x            | 8.3        | Legacy compatibility |
+| 10.x            | 8.3        | Legacy compatibility |
 
 ## Versions
 
 | Milvus Version | PHP Client Version |
 |----------------|--------------------|
-| v2.3.x         | v0.0.x             |
-| v2.2.x         | Not supported (*)  |
-
-(*) But is mostly compatible, the only difference (that I can see) between them is the new Vector Upsert endpoint, and
-new parameters (`params.range_filter` and `params.radius`)  in the Vector Search endpoint.
+| v3.0.x         | v0.2.x             |
+| v2.6.x         | v0.2.x             |
+| v2.5.x         | v0.2.x             |
+| v2.3.x         | v0.0.x-v0.1.x      |
 
 ## Installation
 
@@ -71,19 +83,20 @@ Milvus::collections()->list(
 Milvus::collections()->create(
     collectionName: 'documents',
     dimension: 128,
-    dbname: 'default',
+    dbName: 'default',
+    autoID: false,
 );
 
 // Describe the structure and properties of the 'documents' collection in the 'default' database
 Milvus::collections()->describe(
     collectionName: 'documents',
-    dbname: 'default',
+    dbName: 'default',
 );
 
 // Drop or delete the 'documents' collection from the 'default' database
 Milvus::collections()->drop(
     collectionName: 'documents',
-    dbname: 'default',
+    dbName: 'default',
 );
 
 // Insert a new vector into the 'documents' collection with additional fields like title and link
@@ -91,22 +104,26 @@ Milvus::collections()->drop(
 Milvus::vector()->insert(
     collectionName: 'documents',
     data: [
-        'vector' => [0.1, 0.2, 0.3 /* etc... */],
-        'title' => 'Document name here',
-        'link' => 'https://example.com/document-name-here',
+        [
+            'id' => 123129471497,
+            'vector' => [0.1, 0.2, 0.3 /* etc... */],
+            'title' => 'Document name here',
+            'link' => 'https://example.com/document-name-here',
+        ],
     ]
 );
 
 // Search for similar vectors in the 'documents' collection using a provided vector
 Milvus::vector()->search(
     collectionName: 'documents',
-    vector: [0.1, 0.2, 0.3 /* etc... */],
+    data: [[0.1, 0.2, 0.3 /* etc... */]],
+    annsField: 'vector',
 );
 
 // Delete a vector from the 'documents' collection using its ID
 Milvus::vector()->delete(
-    id: '123129471497',
-    collectionName: 'documents'
+    collectionName: 'documents',
+    filter: 'id == 123129471497',
 );
 
 // Query the 'documents' collection for specific documents using a filter condition and select specific output fields
@@ -126,10 +143,12 @@ Milvus::vector()->get(
 Milvus::vector()->upsert(
     collectionName: 'documents',
     data: [
-        'id' => 123129471497,
-        'vector' => [0.1, 0.2, 0.3 /* etc... */],
-        'title' => 'Document name here',
-        'link' => 'https://example.com/document-name-here',
+        [
+            'id' => 123129471497,
+            'vector' => [0.1, 0.2, 0.3 /* etc... */],
+            'title' => 'Document name here',
+            'link' => 'https://example.com/document-name-here',
+        ],
     ]
 );
 
@@ -184,16 +203,20 @@ $milvus->collections()->drop(
 $milvus->vector()->insert(
     collectionName: 'documents',
     data: [
-        'vector' => [0.1, 0.2, 0.3 /* etc... */],
-        'title' => 'Document name here',
-        'link' => 'https://example.com/document-name-here',
+        [
+            'id' => 123129471497,
+            'vector' => [0.1, 0.2, 0.3 /* etc... */],
+            'title' => 'Document name here',
+            'link' => 'https://example.com/document-name-here',
+        ],
     ]
 );
 
 // Search for similar vectors in the 'documents' collection using a provided vector
 $milvus->vector()->search(
     collectionName: 'documents',
-    vector: [0.1, 0.2, 0.3 /* etc... */],
+    data: [[0.1, 0.2, 0.3 /* etc... */]],
+    annsField: 'vector',
 );
 
 // Delete a vector from the 'documents' collection using its ID
@@ -219,10 +242,12 @@ $milvus->vector()->get(
 $milvus->vector()->upsert(
     collectionName: 'documents',
     data: [
-        'id' => 123129471497,
-        'vector' => [0.1, 0.2, 0.3 /* etc... */],
-        'title' => 'Document name here',
-        'link' => 'https://example.com/document-name-here',
+        [
+            'id' => 123129471497,
+            'vector' => [0.1, 0.2, 0.3 /* etc... */],
+            'title' => 'Document name here',
+            'link' => 'https://example.com/document-name-here',
+        ],
     ]
 );
 
@@ -344,7 +369,8 @@ Use the Milvus client to perform a search with the generated embedding.
 ```php
 $searchResponse = $milvus->vector()->search(
     collectionName: 'blog_posts',
-    vector: $searchEmbedding,
+    data: [$searchEmbedding],
+    annsField: 'vector',
     limit: 3,
     outputFields: ['title', 'summary', 'tags']
 );
@@ -363,16 +389,16 @@ To quickly get started with Milvus, you can run it in Docker, by using the follo
 
 ```bash
 # Download the docker-compose.yml file
-wget https://github.com/milvus-io/milvus/releases/download/v2.5.1/milvus-standalone-docker-compose.yml -O docker-compose.yml
+wget https://github.com/milvus-io/milvus/releases/download/v3.0.0/milvus-standalone-docker-compose.yml -O docker-compose.yml
 
 # Start Milvus
-docker compose up -d
+docker compose up --wait --wait-timeout 180
 ```
 
 A healthcheck endpoint will now be available on `http://localhost:9091/healthz`, and the Milvus API will be available
 on `http://localhost:19530`.
 
-To stop Milvus, run `docker compose down`, to wipe all the data, run `docker compose down -v`.
+To stop Milvus, run `docker compose down`. Data is stored in the local `volumes/` directory.
 
 For more
 details [Installing Milvus Standalone with Docker Compose](https://milvus.io/docs/install_standalone-docker.md)
@@ -385,11 +411,16 @@ Milvus and provides a hosted version of Milvus in the Cloud ☁️.
 ```bash
 cp .env.example .env
 
-## Start a local Milvus instance, it takes awhile to boot up
-docker compose up -d
- 
-composer test
+# Run the fast request-contract tests
+composer test:unit
+
+# Start the default pinned Milvus version and run the live lifecycle test
+docker compose up --wait --wait-timeout 180
+composer test:integration
+docker compose down --volumes
+
 composer analyse src
+composer format:test
 ```
 
 ## License
