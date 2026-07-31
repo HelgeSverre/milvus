@@ -9,13 +9,15 @@ All notable changes to this project are documented in this file. This project fo
 
 - Database create, list, describe, and drop operations through `Milvus::databases()`.
 - Typed database list, description, and property DTOs with int64-safe IDs and preserved future fields.
-- Live Docker coverage for database properties, custom schemas, AutoID, scalar-filtered search, and API failures across
-  Milvus 2.5, 2.6, and 3.0.
+- Live Docker coverage for a full-client smoke test, database properties, custom schemas, AutoID, scalar-filtered
+  search, and API failures across Milvus 2.5, 2.6, and 3.0.
 - README guides for database management, filtered search, custom schemas, AutoID, and Zilliz REST v2 configuration.
 
 ### Changed
 
 - `just test` runs both unit and Docker integration tests; use `just unit` for the fast suite.
+- The `delete(id: ...)` convenience argument now emits the REST API's required primary-key filter instead of an
+  unsupported `id` request field.
 - Empty list request bodies retain JSON encoding errors while serializing as objects required by Milvus.
 
 ## [0.2.0] - 2026-07-31

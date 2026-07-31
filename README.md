@@ -469,8 +469,8 @@ service-provider resolution, and architecture rules without contacting Milvus:
 just unit
 ```
 
-The full test command starts Docker and runs both the unit suite and live database, collection, custom-schema, AutoID,
-filtered-search, error-envelope, and response-DTO scenarios:
+The full test command starts Docker and runs both the unit suite and live full-client smoke, database, collection,
+custom-schema, AutoID, filtered-search, error-envelope, and response-DTO scenarios:
 
 ```bash
 just test

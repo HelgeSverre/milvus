@@ -225,16 +225,38 @@ it('matches the Milvus REST v2 request contract', function (Request $request, st
         ],
     ],
     'delete entities' => [
-        new DeleteVector('documents', '', 'default', 'partition', 0, ['id' => 1]),
+        new DeleteVector('documents', null, 'default', 'partition', 0, ['id' => 1]),
         '/v2/vectordb/entities/delete',
         [
             'collectionName' => 'documents',
-            'filter' => '',
+            'filter' => 'id == 0',
             'dbName' => 'default',
             'partitionName' => 'partition',
-            'id' => 0,
             'exprParams' => ['id' => 1],
         ],
+    ],
+]);
+
+it('builds canonical Milvus delete filters', function (DeleteVector $request, array $body) {
+    expect($request->body()->all())->toBe($body);
+})->with([
+    'string ID is safely quoted' => [
+        new DeleteVector('documents', id: 'docs/"quoted"'),
+        [
+            'collectionName' => 'documents',
+            'filter' => 'id == "docs/\\"quoted\\""',
+        ],
+    ],
+    'explicit filter takes precedence' => [
+        new DeleteVector('documents', filter: 'project_id == 10', id: 1),
+        [
+            'collectionName' => 'documents',
+            'filter' => 'project_id == 10',
+        ],
+    ],
+    'missing criterion remains omitted for API error handling' => [
+        new DeleteVector('documents'),
+        ['collectionName' => 'documents'],
     ],
 ]);
 

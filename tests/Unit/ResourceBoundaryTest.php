@@ -246,7 +246,6 @@ it('preserves the public resource contract through request construction and resp
     'delete entities' => [
         fn (Milvus $milvus) => $milvus->vector()->delete(
             collectionName: 'documents',
-            filter: '',
             dbName: 'analytics',
             partitionName: 'published',
             id: 0,
@@ -255,10 +254,9 @@ it('preserves the public resource contract through request construction and resp
         DeleteVector::class,
         [
             'collectionName' => 'documents',
-            'filter' => '',
+            'filter' => 'id == 0',
             'dbName' => 'analytics',
             'partitionName' => 'published',
-            'id' => 0,
             'exprParams' => ['tenant' => 'acme'],
         ],
         ['code' => 0, 'data' => ['deleteCount' => 1, 'deleteIds' => [0]]],
