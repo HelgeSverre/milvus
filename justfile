@@ -60,7 +60,11 @@ check: validate audit format-check analyse unit
 # Start Milvus.
 [group('docker')]
 milvus-up $MILVUS_VERSION="3.0.0":
-    MILVUS_IMAGE="milvusdb/milvus:v${MILVUS_VERSION}" docker compose up -d --wait --wait-timeout 180
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    volume_directory="${DOCKER_VOLUME_DIRECTORY:-${TMPDIR:-/tmp}/milvus-php-client/v${MILVUS_VERSION}}"
+    DOCKER_VOLUME_DIRECTORY="${volume_directory}" MILVUS_IMAGE="milvusdb/milvus:v${MILVUS_VERSION}" docker compose up -d --wait --wait-timeout 180
 
 # Show containers.
 [group('docker')]
@@ -79,7 +83,23 @@ milvus-down:
 
 # Run live tests.
 [group('test')]
-integration $MILVUS_VERSION="3.0.0": (milvus-up MILVUS_VERSION)
+integration $MILVUS_VERSION="3.0.0":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    volume_directory="$(mktemp -d "${TMPDIR:-/tmp}/milvus-php-client.XXXXXX")"
+
+    cleanup() {
+        status=$?
+        trap - EXIT
+        DOCKER_VOLUME_DIRECTORY="${volume_directory}" MILVUS_IMAGE="milvusdb/milvus:v${MILVUS_VERSION}" docker compose down --volumes || true
+        find "${volume_directory}" -depth -delete 2>/dev/null || true
+        exit "${status}"
+    }
+
+    trap cleanup EXIT
+
+    DOCKER_VOLUME_DIRECTORY="${volume_directory}" MILVUS_IMAGE="milvusdb/milvus:v${MILVUS_VERSION}" docker compose up -d --wait --wait-timeout 180
     composer test:integration
 
 # Run release gate.

@@ -44,7 +44,7 @@
         }
     },
     "scripts": {
-        "analyse": "vendor/bin/phpstan analyse",
+        "analyse": "vendor/bin/phpstan analyse --level=3",
         "test": "vendor/bin/pest --no-coverage",
         "test:unit": "vendor/bin/pest tests/Unit tests/ArchTest.php --no-coverage",
         "test:integration": "vendor/bin/pest tests/Feature/ApiFailureIntegrationTest.php tests/Feature/CollectionSchemaTest.php tests/Feature/CollectionTest.php tests/Feature/DatabaseTest.php tests/Feature/RealWorldExampleTest.php tests/Feature/ResponseDtoIntegrationTest.php --no-coverage",

@@ -20,7 +20,7 @@ See the [Milvus REST API documentation](https://milvus.io/api-reference/restful/
 and [vector](https://github.com/milvus-io/web-content/blob/master/scripts/apifox-docs/meta/openapi/04-vector-operations-v2.json)
 OpenAPI definitions.
 
-See the [changelog](CHANGELOG.md) for the complete v0.2.0 upgrade notes.
+See the [changelog](CHANGELOG.md) for the complete release history and upgrade notes.
 
 ## Compatibility
 
@@ -40,9 +40,9 @@ block their affected upstream framework releases.
 
 | Milvus Version | PHP Client Version |
 |----------------|--------------------|
-| v3.0.x         | v0.2.x             |
-| v2.6.x         | v0.2.x             |
-| v2.5.x         | v0.2.x             |
+| v3.0.x         | v0.2.0+            |
+| v2.6.x         | v0.2.0+            |
+| v2.5.x         | v0.2.0+            |
 | v2.3.x         | v0.0.x-v0.1.x      |
 
 PHP 8.3–8.5 is supported. Laravel is optional; the client can also be used as a standalone Saloon connector.
