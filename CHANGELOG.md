@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file. This project fo
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-08-02
+
+### Changed
+
+- Raise the PHPStan quality gate from rule level 0 to level 5.
+- Use disposable Docker storage for integration tests and version-specific storage for manual Milvus runs.
+
+### Fixed
+
+- Prevent stale metadata from one Milvus version from breaking later local integration runs against another version.
+- Keep the documented client compatibility range and release-note references current for the 0.3 release line.
+
 ## [0.3.0] - 2026-07-31
 
 ### Added
@@ -51,6 +63,7 @@ All notable changes to this project are documented in this file. This project fo
 - Use the raw `username:password` Milvus token format and prefer an explicitly configured token.
 - Decode documented Milvus 2.5–3.0 response variations without losing unknown or dynamic fields.
 
-[Unreleased]: https://github.com/HelgeSverre/milvus/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/HelgeSverre/milvus/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/HelgeSverre/milvus/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/HelgeSverre/milvus/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/HelgeSverre/milvus/compare/v0.1.0...v0.2.0
